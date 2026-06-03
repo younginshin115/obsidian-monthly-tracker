@@ -1,5 +1,6 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
 import type MonthlyTrackerPlugin from './main';
+import { t } from './i18n';
 
 export class MonthlyTrackerSettingTab extends PluginSettingTab {
   plugin: MonthlyTrackerPlugin;
@@ -11,11 +12,12 @@ export class MonthlyTrackerSettingTab extends PluginSettingTab {
 
   display(): void {
     const { containerEl } = this;
+    const m = t();
     containerEl.empty();
 
     new Setting(containerEl)
-      .setName('Daily notes folder')
-      .setDesc('Folder containing daily notes (e.g. Calendar/Days)')
+      .setName(m.settingsFolderName)
+      .setDesc(m.settingsFolderDesc)
       .addText(text =>
         text
           .setPlaceholder('Calendar/Days')
@@ -27,8 +29,8 @@ export class MonthlyTrackerSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName('Date format')
-      .setDesc('File name date format. Must match YYYY-MM-DD at the start of file names.')
+      .setName(m.settingsDateFormatName)
+      .setDesc(m.settingsDateFormatDesc)
       .addText(text =>
         text
           .setPlaceholder('YYYY-MM-DD')

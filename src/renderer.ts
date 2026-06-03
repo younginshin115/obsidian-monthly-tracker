@@ -1,5 +1,6 @@
 import { TrackerConfig, BooleanConfig, ColormapConfig, HeatmapConfig } from './types';
 import { resolveColor, resolveHeatmapColors } from './presets';
+import { t } from './i18n';
 
 export interface DayData {
   day: number;
@@ -7,56 +8,43 @@ export interface DayData {
   filePath?: string;
 }
 
-const EMPTY_COLOR = '#ebedf0';
-
-function applyBaseStyle(el: HTMLElement, bgColor: string, textStyle: Record<string, string>): void {
-  Object.assign(el.style, {
-    backgroundColor: bgColor,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '4px 0',
-    borderRadius: '2px',
-    fontSize: '9px',
-    flex: '1',
-    minWidth: '0',
-    boxSizing: 'border-box',
-    ...textStyle,
-  });
-}
-
+/**
+ * Build a single day cell.
+ * @param bgColor inline background color for active cells; null lets the theme
+ *   (`.is-empty`) style empty cells so dark mode is respected.
+ */
 function dayCell(
   day: number,
-  bgColor: string,
+  bgColor: string | null,
+  active: boolean,
   filePath: string | undefined,
   tooltip: string,
-  textStyle: Record<string, string>,
 ): HTMLElement {
   const el: HTMLElement = filePath
     ? document.createElement('a')
     : document.createElement('div');
 
+  el.classList.add('monthly-tracker-cell', active ? 'is-active' : 'is-empty');
+  if (bgColor) el.style.backgroundColor = bgColor;
+
   if (filePath) {
-    (el as HTMLAnchorElement).href = filePath;
-    el.classList.add('internal-link');
-    el.style.textDecoration = 'none';
+    const anchor = el as HTMLAnchorElement;
+    anchor.classList.add('internal-link');
+    anchor.setAttribute('href', filePath);
+    anchor.dataset.href = filePath;
   }
 
   el.title = tooltip;
   el.textContent = String(day);
-  applyBaseStyle(el, bgColor, textStyle);
   return el;
 }
 
 function wrapGrid(cells: HTMLElement[]): HTMLElement {
   const row = document.createElement('div');
-  Object.assign(row.style, { display: 'flex', gap: '2px', marginBottom: '8px' });
+  row.classList.add('monthly-tracker-row');
   for (const cell of cells) row.appendChild(cell);
   return row;
 }
-
-const ACTIVE_STYLE: Record<string, string> = { fontWeight: '600', color: 'white' };
-const EMPTY_STYLE: Record<string, string> = { color: '#999' };
 
 export function renderBoolean(config: BooleanConfig, data: Map<number, DayData>, daysInMonth: number): HTMLElement {
   const activeColor = resolveColor(config.color);
@@ -65,7 +53,7 @@ export function renderBoolean(config: BooleanConfig, data: Map<number, DayData>,
   for (let day = 1; day <= daysInMonth; day++) {
     const entry = data.get(day);
     const active = entry !== undefined && !!entry.value;
-    cells.push(dayCell(day, active ? activeColor : EMPTY_COLOR, entry?.filePath, active ? 'Yes' : '', active ? ACTIVE_STYLE : EMPTY_STYLE));
+    cells.push(dayCell(day, active ? activeColor : null, active, entry?.filePath, active ? t().tooltipYes : ''));
   }
 
   return wrapGrid(cells);
@@ -77,10 +65,9 @@ export function renderColormap(config: ColormapConfig, data: Map<number, DayData
 
   for (let day = 1; day <= daysInMonth; day++) {
     const entry = data.get(day);
-    const val = entry?.value as string | undefined;
-    const mappedColor = val != null ? colorMap[val] : undefined;
-    const bgColor = mappedColor ?? EMPTY_COLOR;
-    cells.push(dayCell(day, bgColor, entry?.filePath, val ?? '', mappedColor ? ACTIVE_STYLE : EMPTY_STYLE));
+    const key = entry?.value != null ? String(entry.value) : undefined;
+    const mappedColor = key != null ? colorMap[key] : undefined;
+    cells.push(dayCell(day, mappedColor ?? null, !!mappedColor, entry?.filePath, key ?? ''));
   }
 
   return wrapGrid(cells);
@@ -88,12 +75,8 @@ export function renderColormap(config: ColormapConfig, data: Map<number, DayData
 
 export function renderHeatmap(config: HeatmapConfig, data: Map<number, DayData>, daysInMonth: number): HTMLElement {
   const colors = resolveHeatmapColors(config.colors, config.colorScheme);
-  if (!config.bins || config.bins.length === 0) throw new Error('heatmap requires "bins" (e.g. bins: [3, 5, 7, 10])');
-  const bins = config.bins;
-  if (bins[0] <= 0) throw new Error(`bins values must be positive (got ${bins[0]})`);
-  for (let i = 1; i < bins.length; i++) {
-    if (bins[i] <= bins[i - 1]) throw new Error(`bins must be in ascending order (got ${bins[i - 1]}, ${bins[i]})`);
-  }
+  // bins are validated upstream in processBlock; non-null assertion is safe here.
+  const bins = config.bins!;
   const unit = config.unit ?? '';
 
   function getIntensity(val: number): number {
@@ -107,7 +90,7 @@ export function renderHeatmap(config: HeatmapConfig, data: Map<number, DayData>,
   const maxIntensity = bins.length + 1;
   const safeColors = colors.length >= maxIntensity + 1 ? colors : [
     ...colors,
-    ...Array(maxIntensity + 1 - colors.length).fill(colors[colors.length - 1] ?? EMPTY_COLOR),
+    ...Array(maxIntensity + 1 - colors.length).fill(colors[colors.length - 1] ?? ''),
   ];
 
   let total = 0;
@@ -119,20 +102,22 @@ export function renderHeatmap(config: HeatmapConfig, data: Map<number, DayData>,
     const val = typeof raw === 'number' && isFinite(raw) ? raw : 0;
     total += val;
     const intensity = getIntensity(val);
-    const bgColor = safeColors[intensity] ?? EMPTY_COLOR;
-    cells.push(dayCell(day, bgColor, entry?.filePath, val > 0 ? `${val}${unit}` : '', intensity > 0 ? ACTIVE_STYLE : EMPTY_STYLE));
+    const active = intensity > 0;
+    const bgColor = active ? (safeColors[intensity] || null) : null;
+    cells.push(dayCell(day, bgColor, active, entry?.filePath, val > 0 ? `${val}${unit}` : ''));
   }
 
   const container = document.createElement('div');
 
   if (config.showTotal) {
-    const label = config.totalLabel ?? '합계';
+    const label = config.totalLabel ?? t().totalLabel;
     const summary = document.createElement('div');
-    Object.assign(summary.style, { marginBottom: '6px', fontSize: '12px', color: 'var(--text-muted)' });
+    summary.classList.add('monthly-tracker-summary');
     summary.textContent = `${label}: `;
     const value = document.createElement('span');
-    Object.assign(value.style, { fontWeight: '600', color: 'var(--text-normal)' });
-    value.textContent = `${total.toFixed(1)}${unit}`;
+    value.classList.add('monthly-tracker-summary-value');
+    const displayTotal = Number.isInteger(total) ? String(total) : total.toFixed(1);
+    value.textContent = `${displayTotal}${unit}`;
     summary.appendChild(value);
     container.appendChild(summary);
   }
@@ -147,7 +132,7 @@ export function renderTracker(
   daysInMonth: number,
 ): HTMLElement {
   const container = document.createElement('div');
-  container.style.fontFamily = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+  container.classList.add('monthly-tracker');
 
   let inner: HTMLElement | null = null;
   if (config.type === 'boolean') {

@@ -1,14 +1,14 @@
 /** Single-color presets for boolean tracker */
 export const COLOR_PRESETS: Record<string, string> = {
-  blue:   '#64b5f6',
-  green:  '#66bb6a',
-  red:    '#e57373',
+  blue: '#64b5f6',
+  green: '#66bb6a',
+  red: '#e57373',
   purple: '#ba68c8',
   orange: '#ffb74d',
   yellow: '#ffd54f',
-  teal:   '#4db6ac',
+  teal: '#4db6ac',
   indigo: '#7986cb',
-  pink:   '#f06292',
+  pink: '#f06292',
 };
 
 /**
@@ -16,19 +16,20 @@ export const COLOR_PRESETS: Record<string, string> = {
  * Index 0 = no data, index 1..n = increasing intensity.
  */
 export const HEATMAP_SCHEMES: Record<string, string[]> = {
-  blue:   ['#ebedf0', '#bbdefb', '#90caf9', '#64b5f6', '#42a5f5', '#1e88e5'],
-  green:  ['#ebedf0', '#c8e6c9', '#a5d6a7', '#81c784', '#66bb6a', '#43a047'],
-  red:    ['#ebedf0', '#ffcdd2', '#ef9a9a', '#e57373', '#ef5350', '#e53935'],
+  blue: ['#ebedf0', '#bbdefb', '#90caf9', '#64b5f6', '#42a5f5', '#1e88e5'],
+  green: ['#ebedf0', '#c8e6c9', '#a5d6a7', '#81c784', '#66bb6a', '#43a047'],
+  red: ['#ebedf0', '#ffcdd2', '#ef9a9a', '#e57373', '#ef5350', '#e53935'],
   purple: ['#ebedf0', '#e1bee7', '#ce93d8', '#ba68c8', '#ab47bc', '#8e24aa'],
   orange: ['#ebedf0', '#ffe0b2', '#ffcc80', '#ffb74d', '#ffa726', '#fb8c00'],
   yellow: ['#ebedf0', '#fff9c4', '#fff59d', '#fff176', '#ffee58', '#fdd835'],
-  teal:   ['#ebedf0', '#b2dfdb', '#80cbc4', '#4db6ac', '#26a69a', '#00897b'],
+  teal: ['#ebedf0', '#b2dfdb', '#80cbc4', '#4db6ac', '#26a69a', '#00897b'],
   indigo: ['#ebedf0', '#e8eaf6', '#c5cae9', '#9fa8da', '#7986cb', '#5c6bc0'],
-  pink:   ['#ebedf0', '#fce4ec', '#f48fb1', '#f06292', '#ec407a', '#d81b60'],
+  pink: ['#ebedf0', '#fce4ec', '#f48fb1', '#f06292', '#ec407a', '#d81b60'],
 };
 
 /** Resolve a color string: if it's a known preset name, return the hex; otherwise return as-is. */
-export function resolveColor(color: string): string {
+export function resolveColor(color?: string): string {
+  if (!color) return COLOR_PRESETS.blue;
   return COLOR_PRESETS[color.toLowerCase()] ?? color;
 }
 
