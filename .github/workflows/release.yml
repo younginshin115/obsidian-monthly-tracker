@@ -1,0 +1,50 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '[0-9]*'
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: |
+            main.js
+            manifest.json
+            styles.css
+
+      - uses: anchore/sbom-action@v0.24.0
+        with:
+          file: main.js
+          output-file: main.js.spdx.json
+
+      - uses: actions/attest@v4
+        with:
+          subject-path: main.js
+          sbom-path: main.js.spdx.json
+
+      - uses: softprops/action-gh-release@v3
+        with:
+          files: |
+            main.js
+            manifest.json
+            styles.css
