@@ -16,6 +16,15 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Verify tag matches manifest.json version
+        run: |
+          manifest_version="$(jq -r .version manifest.json)"
+          if [ "$manifest_version" != "${GITHUB_REF_NAME}" ]; then
+            echo "::error::Tag '${GITHUB_REF_NAME}' does not match manifest.json version '${manifest_version}'"
+            exit 1
+          fi
+          echo "Tag matches manifest.json version: ${manifest_version}"
+
       - uses: actions/setup-node@v6
         with:
           node-version: '24'
