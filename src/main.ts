@@ -132,14 +132,28 @@ export default class MonthlyTrackerPlugin extends Plugin {
 
     const rendered = renderTracker(config, data, daysInMonth);
 
-    // Delegate internal-link clicks to Obsidian so day cells open the note
-    // (and so hover preview works via data-href).
+    // Delegate internal-link clicks to Obsidian so day cells open the note.
     this.registerDomEvent(rendered, 'click', (evt) => {
       const link = (evt.target as HTMLElement).closest('a.internal-link');
       const path = link?.getAttribute('data-href');
       if (!path) return;
       evt.preventDefault();
       this.app.workspace.openLinkText(path, ctx.sourcePath, evt.ctrlKey || evt.metaKey);
+    });
+
+    // Trigger Obsidian's page-preview on hover (data-href alone doesn't enable it).
+    this.registerDomEvent(rendered, 'mouseover', (evt) => {
+      const link = (evt.target as HTMLElement).closest('a.internal-link');
+      const path = link?.getAttribute('data-href');
+      if (!path) return;
+      this.app.workspace.trigger('hover-link', {
+        event: evt,
+        source: 'monthly-tracker',
+        hoverParent: rendered,
+        targetEl: link,
+        linktext: path,
+        sourcePath: ctx.sourcePath,
+      });
     });
 
     el.appendChild(rendered);

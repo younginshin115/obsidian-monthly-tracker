@@ -65,9 +65,9 @@ export function renderColormap(config: ColormapConfig, data: Map<number, DayData
 
   for (let day = 1; day <= daysInMonth; day++) {
     const entry = data.get(day);
-    const val = entry?.value as string | undefined;
-    const mappedColor = val != null ? colorMap[val] : undefined;
-    cells.push(dayCell(day, mappedColor ?? null, !!mappedColor, entry?.filePath, val ?? ''));
+    const key = entry?.value != null ? String(entry.value) : undefined;
+    const mappedColor = key != null ? colorMap[key] : undefined;
+    cells.push(dayCell(day, mappedColor ?? null, !!mappedColor, entry?.filePath, key ?? ''));
   }
 
   return wrapGrid(cells);
