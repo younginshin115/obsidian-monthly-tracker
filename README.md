@@ -252,6 +252,8 @@ Boolean은 지정한 색상 하나로 표시되고, Heatmap은 지정한 테마�
 
 ## 설정
 
+![설정 화면](docs/screenshot-settings.png)
+
 Settings → Monthly Tracker:
 
 | 항목 | 기본값 | 설명 |
@@ -268,8 +270,6 @@ Settings → Monthly Tracker:
 | `YYYY.MM.DD` | `2026.06.03.md` |
 
 다른 형식이 필요하다면 PR을 보내주세요.
-
-![설정 화면](docs/screenshot-settings.png)
 
 기본 설정과 다른 폴더를 스캔해야 하는 트래커에는 `source` 옵션으로 폴더를 직접 지정할 수 있습니다. 모닝 저널처럼 별도 폴더에 파일을 관리하는 경우에 유용합니다:
 
