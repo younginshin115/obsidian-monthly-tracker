@@ -1,5 +1,6 @@
 import { TrackerConfig, BooleanConfig, ColormapConfig, HeatmapConfig } from './types';
 import { resolveColor, resolveHeatmapColors } from './presets';
+import { t } from './i18n';
 
 export interface DayData {
   day: number;
@@ -65,7 +66,7 @@ export function renderBoolean(config: BooleanConfig, data: Map<number, DayData>,
   for (let day = 1; day <= daysInMonth; day++) {
     const entry = data.get(day);
     const active = entry !== undefined && !!entry.value;
-    cells.push(dayCell(day, active ? activeColor : EMPTY_COLOR, entry?.filePath, active ? 'Yes' : '', active ? ACTIVE_STYLE : EMPTY_STYLE));
+    cells.push(dayCell(day, active ? activeColor : EMPTY_COLOR, entry?.filePath, active ? t().tooltipYes : '', active ? ACTIVE_STYLE : EMPTY_STYLE));
   }
 
   return wrapGrid(cells);
@@ -88,11 +89,11 @@ export function renderColormap(config: ColormapConfig, data: Map<number, DayData
 
 export function renderHeatmap(config: HeatmapConfig, data: Map<number, DayData>, daysInMonth: number): HTMLElement {
   const colors = resolveHeatmapColors(config.colors, config.colorScheme);
-  if (!config.bins || config.bins.length === 0) throw new Error('heatmap requires "bins" (e.g. bins: [3, 5, 7, 10])');
+  if (!config.bins || config.bins.length === 0) throw new Error(t().errHeatmapBins);
   const bins = config.bins;
-  if (bins[0] <= 0) throw new Error(`bins values must be positive (got ${bins[0]})`);
+  if (bins[0] <= 0) throw new Error(t().errBinsPositive(bins[0]));
   for (let i = 1; i < bins.length; i++) {
-    if (bins[i] <= bins[i - 1]) throw new Error(`bins must be in ascending order (got ${bins[i - 1]}, ${bins[i]})`);
+    if (bins[i] <= bins[i - 1]) throw new Error(t().errBinsAscending(bins[i - 1], bins[i]));
   }
   const unit = config.unit ?? '';
 
@@ -126,7 +127,7 @@ export function renderHeatmap(config: HeatmapConfig, data: Map<number, DayData>,
   const container = document.createElement('div');
 
   if (config.showTotal) {
-    const label = config.totalLabel ?? '합계';
+    const label = config.totalLabel ?? t().totalLabel;
     const summary = document.createElement('div');
     Object.assign(summary.style, { marginBottom: '6px', fontSize: '12px', color: 'var(--text-muted)' });
     summary.textContent = `${label}: `;

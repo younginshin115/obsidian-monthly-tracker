@@ -2,6 +2,7 @@ import { Plugin, MarkdownPostProcessorContext, TFile, parseYaml } from 'obsidian
 import { PluginSettings, DEFAULT_SETTINGS, TrackerConfig } from './types';
 import { MonthlyTrackerSettingTab } from './settings';
 import { renderTracker, DayData } from './renderer';
+import { t } from './i18n';
 
 function buildDatePattern(dateFormat: string, year: number, month: number): RegExp {
   const mm = String(month).padStart(2, '0');
@@ -38,7 +39,7 @@ export default class MonthlyTrackerPlugin extends Plugin {
           await this.processBlock(source, el, ctx);
         } catch (err) {
           el.createEl('pre', {
-            text: `Monthly Tracker Error:\n${err instanceof Error ? err.message : String(err)}`,
+            text: `${t().errorPrefix}:\n${err instanceof Error ? err.message : String(err)}`,
             cls: 'monthly-tracker-error',
           });
         }
@@ -53,31 +54,31 @@ export default class MonthlyTrackerPlugin extends Plugin {
   ): Promise<void> {
     const config = parseYaml(source.trim()) as TrackerConfig;
     if (!config?.type) {
-      throw new Error('Missing required field: type (boolean | colormap | heatmap)');
+      throw new Error(t().errMissingType);
     }
     if (!config.property && config.type !== 'boolean') {
-      throw new Error('Missing required field: property');
+      throw new Error(t().errMissingProperty);
     }
     if (config.type === 'colormap' && !config.colors) {
-      throw new Error('Missing required field: colors (e.g. colors: {value: "#hex"})');
+      throw new Error(t().errMissingColors);
     }
 
     // Read year/month from the current note's frontmatter
     const currentFile = this.app.vault.getAbstractFileByPath(ctx.sourcePath);
     if (!(currentFile instanceof TFile)) {
-      throw new Error('Cannot resolve current file');
+      throw new Error(t().errCannotResolveFile);
     }
     const fm = this.app.metadataCache.getFileCache(currentFile)?.frontmatter;
     const year = fm?.year;
     const month = fm?.month;
     if (year == null || month == null) {
-      throw new Error("Current note must have 'year' and 'month' in frontmatter");
+      throw new Error(t().errMissingYearMonth);
     }
     if (typeof year !== 'number' || typeof month !== 'number') {
-      throw new Error("'year' and 'month' must be numbers in frontmatter");
+      throw new Error(t().errYearMonthType);
     }
     if (month < 1 || month > 12) {
-      throw new Error(`Invalid month: ${month} (must be 1–12)`);
+      throw new Error(t().errInvalidMonth(month));
     }
 
     const daysInMonth = new Date(year, month, 0).getDate();
