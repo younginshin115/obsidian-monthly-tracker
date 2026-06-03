@@ -3,10 +3,21 @@
   "version": "1.0.0",
   "description": "Obsidian Monthly Tracker Plugin",
   "main": "main.js",
+  "type": "module",
+  "license": "MIT",
+  "author": "Youngin Shin",
+  "keywords": [
+    "obsidian",
+    "obsidian-plugin",
+    "tracker",
+    "heatmap",
+    "habit-tracker"
+  ],
   "scripts": {
     "build": "tsc -noEmit -skipLibCheck && rollup -c rollup.config.js",
     "dev": "rollup -c rollup.config.js -w",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "version": "node version-bump.mjs && git add manifest.json versions.json"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
