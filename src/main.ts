@@ -1,4 +1,4 @@
-import { App, Plugin, MarkdownPostProcessorContext, TFile, TFolder, parseYaml } from 'obsidian';
+import { App, Plugin, MarkdownPostProcessorContext, TFile, TFolder, parseYaml, normalizePath } from 'obsidian';
 import { PluginSettings, DEFAULT_SETTINGS, TrackerConfig } from './types';
 import { MonthlyTrackerSettingTab } from './settings';
 import { renderTracker, DayData } from './renderer';
@@ -115,7 +115,9 @@ export default class MonthlyTrackerPlugin extends Plugin {
     }
 
     const daysInMonth = new Date(year, month, 0).getDate();
-    const folder = config.source ?? (this.settings.dailyNotesFolder || detectDailyNotesFolder(this.app));
+    const folder = normalizePath(
+      config.source ?? (this.settings.dailyNotesFolder || detectDailyNotesFolder(this.app)),
+    );
     const pattern = buildDatePattern(this.settings.dateFormat, year, month);
 
     // Scan vault folder for matching daily notes
