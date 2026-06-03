@@ -1,70 +1,11 @@
-import { App, Plugin, MarkdownPostProcessorContext, TFile, TFolder, parseYaml, normalizePath } from 'obsidian';
+import { Plugin, MarkdownPostProcessorContext, TFile, TFolder, parseYaml } from 'obsidian';
 import { PluginSettings, DEFAULT_SETTINGS, TrackerConfig } from './types';
 import { MonthlyTrackerSettingTab } from './settings';
 import { renderTracker, DayData } from './renderer';
+import { buildDatePattern } from './date-pattern';
+import { detectDailyNotesFolder, resolveDailyNotesFolder } from './folder';
+import { validateConfig } from './validate';
 import { t } from './i18n';
-
-function buildDatePattern(dateFormat: string, year: number, month: number): RegExp {
-  const mm = String(month).padStart(2, '0');
-  const escaped = dateFormat
-    .replace('YYYY', '\x00Y\x00')
-    .replace('MM', '\x00M\x00')
-    .replace('DD', '\x00D\x00')
-    .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-    .replace('\x00Y\x00', String(year))
-    .replace('\x00M\x00', mm)
-    .replace('\x00D\x00', '(\\d{2})');
-  return new RegExp(`^${escaped}`);
-}
-
-/** Minimal shapes for the untyped internal/community plugin APIs we read from. */
-interface DailyNotesInternalPlugin {
-  instance?: { options?: { folder?: string } };
-}
-interface PeriodicNotesPlugin {
-  settings?: { daily?: { folder?: string } };
-}
-interface AppWithPlugins extends App {
-  internalPlugins?: { plugins?: Record<string, DailyNotesInternalPlugin | undefined> };
-  plugins?: { plugins?: Record<string, PeriodicNotesPlugin | undefined> };
-}
-
-function detectDailyNotesFolder(app: App): string {
-  const a = app as AppWithPlugins;
-  const internal = a.internalPlugins?.plugins?.['daily-notes']?.instance?.options?.folder;
-  if (internal) return internal;
-  const periodic = a.plugins?.plugins?.['periodic-notes']?.settings?.daily?.folder;
-  if (periodic) return periodic;
-  return '';
-}
-
-/** Validate config-level invariants up front so renderers can assume valid input. */
-function validateConfig(config: TrackerConfig): void {
-  const m = t();
-  if (!config?.type) {
-    throw new Error(m.errMissingType);
-  }
-  if (!config.property && config.type !== 'boolean') {
-    throw new Error(m.errMissingProperty);
-  }
-  if (config.type === 'colormap' && !config.colors) {
-    throw new Error(m.errMissingColors);
-  }
-  if (config.type === 'heatmap') {
-    const bins = config.bins;
-    if (!bins || bins.length === 0) {
-      throw new Error(m.errHeatmapBins);
-    }
-    if (bins[0] <= 0) {
-      throw new Error(m.errBinsPositive(bins[0]));
-    }
-    for (let i = 1; i < bins.length; i++) {
-      if (bins[i] <= bins[i - 1]) {
-        throw new Error(m.errBinsAscending(bins[i - 1], bins[i]));
-      }
-    }
-  }
-}
 
 export default class MonthlyTrackerPlugin extends Plugin {
   settings!: PluginSettings;
@@ -115,12 +56,11 @@ export default class MonthlyTrackerPlugin extends Plugin {
     }
 
     const daysInMonth = new Date(year, month, 0).getDate();
-    // Resolve the daily notes folder, then normalize user-provided paths.
-    // An unresolved folder stays empty so the lookup fails and the tracker is
-    // empty, rather than normalizePath('') === '/' silently scanning the vault root.
-    const resolvedFolder =
-      config.source ?? (this.settings.dailyNotesFolder || detectDailyNotesFolder(this.app));
-    const folder = resolvedFolder ? normalizePath(resolvedFolder) : '';
+    const folder = resolveDailyNotesFolder(
+      config.source,
+      this.settings.dailyNotesFolder,
+      detectDailyNotesFolder(this.app),
+    );
     const pattern = buildDatePattern(this.settings.dateFormat, year, month);
 
     // Scan vault folder for matching daily notes
