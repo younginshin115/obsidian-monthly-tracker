@@ -17,6 +17,7 @@
     "build": "tsc -noEmit -skipLibCheck && rollup -c rollup.config.js",
     "dev": "rollup -c rollup.config.js -w",
     "lint": "eslint src",
+    "test": "vitest run",
     "version": "node version-bump.mjs && git add manifest.json versions.json"
   },
   "devDependencies": {
@@ -32,6 +33,7 @@
     "rollup": "^3.0.0",
     "tslib": "^2.0.0",
     "typescript": "^5.0.0",
-    "typescript-eslint": "^8.60.1"
+    "typescript-eslint": "^8.60.1",
+    "vitest": "^4.1.8"
   }
 }
