@@ -20,3 +20,11 @@ export function normalizePath(path: string): string {
 export function getLanguage(): string {
   return 'en';
 }
+
+/**
+ * Obsidian's `setTooltip` wires up a hover tooltip; for assertions we just
+ * mirror the text onto `aria-label`, which is the part tests can observe.
+ */
+export function setTooltip(el: HTMLElement, tooltip: string): void {
+  el.setAttribute('aria-label', tooltip);
+}
