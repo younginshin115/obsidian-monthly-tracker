@@ -3,6 +3,19 @@ import { PluginSettings, DEFAULT_SETTINGS, TrackerConfig } from './types';
 import { MonthlyTrackerSettingTab } from './settings';
 import { renderTracker, DayData } from './renderer';
 
+function buildDatePattern(dateFormat: string, year: number, month: number): RegExp {
+  const mm = String(month).padStart(2, '0');
+  const escaped = dateFormat
+    .replace('YYYY', '\x00Y\x00')
+    .replace('MM', '\x00M\x00')
+    .replace('DD', '\x00D\x00')
+    .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    .replace('\x00Y\x00', String(year))
+    .replace('\x00M\x00', mm)
+    .replace('\x00D\x00', '(\\d{2})');
+  return new RegExp(`^${escaped}`);
+}
+
 export default class MonthlyTrackerPlugin extends Plugin {
   settings: PluginSettings;
 
@@ -52,8 +65,7 @@ export default class MonthlyTrackerPlugin extends Plugin {
 
     const daysInMonth = new Date(year, month, 0).getDate();
     const folder = config.source ?? this.settings.dailyNotesFolder;
-    const mm = String(month).padStart(2, '0');
-    const pattern = new RegExp(`^${year}-${mm}-(\\d{2})`);
+    const pattern = buildDatePattern(this.settings.dateFormat, year, Number(month));
 
     // Scan vault folder for matching daily notes
     const data = new Map<number, DayData>();
