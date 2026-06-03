@@ -3,8 +3,6 @@
 일간 노트의 frontmatter 데이터를 읽어 월간 트래커를 시각화하는 Obsidian 플러그인입니다.
 습관, 컨디션, 운동, 수면 등 매일 기록하는 데이터를 색상으로 표현해, 한 달간의 패턴과 흐름을 한눈에 파악할 수 있습니다.
 
-![Monthly Tracker 전체 예시](docs/screenshot-overview.png)
-
 ---
 
 ## 동작 방식
