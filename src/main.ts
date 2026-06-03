@@ -95,7 +95,7 @@ export default class MonthlyTrackerPlugin extends Plugin {
         if (!(child instanceof TFile)) continue;
         const match = child.name.match(pattern);
         if (!match) continue;
-        const day = parseInt(match[1]);
+        const day = parseInt(match[1], 10);
 
         const childFm = this.app.metadataCache.getFileCache(child)?.frontmatter;
         let value: unknown = undefined;

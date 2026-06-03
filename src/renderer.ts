@@ -90,6 +90,7 @@ export function renderHeatmap(config: HeatmapConfig, data: Map<number, DayData>,
   const colors = resolveHeatmapColors(config.colors, config.colorScheme);
   if (!config.bins || config.bins.length === 0) throw new Error('heatmap requires "bins" (e.g. bins: [3, 5, 7, 10])');
   const bins = config.bins;
+  if (bins[0] <= 0) throw new Error(`bins values must be positive (got ${bins[0]})`);
   for (let i = 1; i < bins.length; i++) {
     if (bins[i] <= bins[i - 1]) throw new Error(`bins must be in ascending order (got ${bins[i - 1]}, ${bins[i]})`);
   }
