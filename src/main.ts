@@ -68,10 +68,16 @@ export default class MonthlyTrackerPlugin extends Plugin {
       throw new Error('Cannot resolve current file');
     }
     const fm = this.app.metadataCache.getFileCache(currentFile)?.frontmatter;
-    const year: number = fm?.year;
-    const month: number = fm?.month;
-    if (!year || !month) {
+    const year = fm?.year;
+    const month = fm?.month;
+    if (year == null || month == null) {
       throw new Error("Current note must have 'year' and 'month' in frontmatter");
+    }
+    if (typeof year !== 'number' || typeof month !== 'number') {
+      throw new Error("'year' and 'month' must be numbers in frontmatter");
+    }
+    if (month < 1 || month > 12) {
+      throw new Error(`Invalid month: ${month} (must be 1–12)`);
     }
 
     const daysInMonth = new Date(year, month, 0).getDate();
