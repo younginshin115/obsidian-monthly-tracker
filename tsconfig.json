@@ -7,6 +7,9 @@
     "target": "ES2018",
     "allowSyntheticDefaultImports": true,
     "importHelpers": true,
+    "isolatedModules": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
     "lib": ["ES2018", "DOM"],
     "moduleResolution": "bundler"
   },

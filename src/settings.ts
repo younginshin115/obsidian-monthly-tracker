@@ -20,6 +20,7 @@ export class MonthlyTrackerSettingTab extends PluginSettingTab {
       .setDesc(m.settingsFolderDesc)
       .addText(text =>
         text
+          // eslint-disable-next-line obsidianmd/ui/sentence-case -- folder path example, not prose
           .setPlaceholder('Calendar/Days')
           .setValue(this.plugin.settings.dailyNotesFolder)
           .onChange(async (value) => {
@@ -33,6 +34,7 @@ export class MonthlyTrackerSettingTab extends PluginSettingTab {
       .setDesc(m.settingsDateFormatDesc)
       .addText(text =>
         text
+          // eslint-disable-next-line obsidianmd/ui/sentence-case -- date-format token, must stay uppercase
           .setPlaceholder('YYYY-MM-DD')
           .setValue(this.plugin.settings.dateFormat)
           .onChange(async (value) => {

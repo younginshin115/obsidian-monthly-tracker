@@ -1,3 +1,5 @@
+import { getLanguage } from 'obsidian';
+
 type Locale = 'en' | 'ko';
 
 export interface Messages {
@@ -61,8 +63,7 @@ const ko: Messages = {
 };
 
 function currentLocale(): Locale {
-  const lang = window.localStorage.getItem('language');
-  return lang === 'ko' ? 'ko' : 'en';
+  return getLanguage() === 'ko' ? 'ko' : 'en';
 }
 
 /** Returns the message table for the current Obsidian UI language. */

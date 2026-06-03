@@ -21,8 +21,8 @@ function dayCell(
   tooltip: string,
 ): HTMLElement {
   const el: HTMLElement = filePath
-    ? document.createElement('a')
-    : document.createElement('div');
+    ? activeDocument.createElement('a')
+    : activeDocument.createElement('div');
 
   el.classList.add('monthly-tracker-cell', active ? 'is-active' : 'is-empty');
   if (bgColor) el.style.backgroundColor = bgColor;
@@ -40,7 +40,7 @@ function dayCell(
 }
 
 function wrapGrid(cells: HTMLElement[]): HTMLElement {
-  const row = document.createElement('div');
+  const row = activeDocument.createElement('div');
   row.classList.add('monthly-tracker-row');
   for (const cell of cells) row.appendChild(cell);
   return row;
@@ -65,7 +65,11 @@ export function renderColormap(config: ColormapConfig, data: Map<number, DayData
 
   for (let day = 1; day <= daysInMonth; day++) {
     const entry = data.get(day);
-    const key = entry?.value != null ? String(entry.value) : undefined;
+    const raw = entry?.value;
+    // Only scalar frontmatter values map to a color key; objects/arrays are ignored.
+    const key = typeof raw === 'string' || typeof raw === 'number' || typeof raw === 'boolean'
+      ? String(raw)
+      : undefined;
     const mappedColor = key != null ? colorMap[key] : undefined;
     cells.push(dayCell(day, mappedColor ?? null, !!mappedColor, entry?.filePath, key ?? ''));
   }
@@ -88,10 +92,9 @@ export function renderHeatmap(config: HeatmapConfig, data: Map<number, DayData>,
   }
 
   const maxIntensity = bins.length + 1;
-  const safeColors = colors.length >= maxIntensity + 1 ? colors : [
-    ...colors,
-    ...Array(maxIntensity + 1 - colors.length).fill(colors[colors.length - 1] ?? ''),
-  ];
+  const fillColor = colors[colors.length - 1] ?? '';
+  const padding = new Array<string>(Math.max(0, maxIntensity + 1 - colors.length)).fill(fillColor);
+  const safeColors = colors.length >= maxIntensity + 1 ? colors : [...colors, ...padding];
 
   let total = 0;
   const cells: HTMLElement[] = [];
@@ -107,14 +110,14 @@ export function renderHeatmap(config: HeatmapConfig, data: Map<number, DayData>,
     cells.push(dayCell(day, bgColor, active, entry?.filePath, val > 0 ? `${val}${unit}` : ''));
   }
 
-  const container = document.createElement('div');
+  const container = activeDocument.createElement('div');
 
   if (config.showTotal) {
     const label = config.totalLabel ?? t().totalLabel;
-    const summary = document.createElement('div');
+    const summary = activeDocument.createElement('div');
     summary.classList.add('monthly-tracker-summary');
     summary.textContent = `${label}: `;
-    const value = document.createElement('span');
+    const value = activeDocument.createElement('span');
     value.classList.add('monthly-tracker-summary-value');
     const displayTotal = Number.isInteger(total) ? String(total) : total.toFixed(1);
     value.textContent = `${displayTotal}${unit}`;
@@ -131,7 +134,7 @@ export function renderTracker(
   data: Map<number, DayData>,
   daysInMonth: number,
 ): HTMLElement {
-  const container = document.createElement('div');
+  const container = activeDocument.createElement('div');
   container.classList.add('monthly-tracker');
 
   let inner: HTMLElement | null = null;
