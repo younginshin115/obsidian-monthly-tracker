@@ -38,9 +38,11 @@ function dayCell(
     : document.createElement('div');
 
   if (filePath) {
-    (el as HTMLAnchorElement).href = filePath;
-    el.classList.add('internal-link');
-    el.style.textDecoration = 'none';
+    const anchor = el as HTMLAnchorElement;
+    anchor.classList.add('internal-link');
+    anchor.setAttribute('href', filePath);
+    anchor.dataset.href = filePath;
+    anchor.style.textDecoration = 'none';
   }
 
   el.title = tooltip;
@@ -89,12 +91,8 @@ export function renderColormap(config: ColormapConfig, data: Map<number, DayData
 
 export function renderHeatmap(config: HeatmapConfig, data: Map<number, DayData>, daysInMonth: number): HTMLElement {
   const colors = resolveHeatmapColors(config.colors, config.colorScheme);
-  if (!config.bins || config.bins.length === 0) throw new Error(t().errHeatmapBins);
-  const bins = config.bins;
-  if (bins[0] <= 0) throw new Error(t().errBinsPositive(bins[0]));
-  for (let i = 1; i < bins.length; i++) {
-    if (bins[i] <= bins[i - 1]) throw new Error(t().errBinsAscending(bins[i - 1], bins[i]));
-  }
+  // bins are validated upstream in processBlock; non-null assertion is safe here.
+  const bins = config.bins!;
   const unit = config.unit ?? '';
 
   function getIntensity(val: number): number {
@@ -133,7 +131,8 @@ export function renderHeatmap(config: HeatmapConfig, data: Map<number, DayData>,
     summary.textContent = `${label}: `;
     const value = document.createElement('span');
     Object.assign(value.style, { fontWeight: '600', color: 'var(--text-normal)' });
-    value.textContent = `${total.toFixed(1)}${unit}`;
+    const displayTotal = Number.isInteger(total) ? String(total) : total.toFixed(1);
+    value.textContent = `${displayTotal}${unit}`;
     summary.appendChild(value);
     container.appendChild(summary);
   }

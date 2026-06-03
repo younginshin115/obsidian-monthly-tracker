@@ -28,7 +28,8 @@ export const HEATMAP_SCHEMES: Record<string, string[]> = {
 };
 
 /** Resolve a color string: if it's a known preset name, return the hex; otherwise return as-is. */
-export function resolveColor(color: string): string {
+export function resolveColor(color?: string): string {
+  if (!color) return COLOR_PRESETS.blue;
   return COLOR_PRESETS[color.toLowerCase()] ?? color;
 }
 
