@@ -111,7 +111,8 @@ export function renderHeatmap(config: HeatmapConfig, data: Map<number, DayData>,
 
   for (let day = 1; day <= daysInMonth; day++) {
     const entry = data.get(day);
-    const val = typeof entry?.value === 'number' ? entry.value : 0;
+    const raw = entry?.value;
+    const val = typeof raw === 'number' && isFinite(raw) ? raw : 0;
     total += val;
     const intensity = getIntensity(val);
     const bgColor = safeColors[intensity] ?? EMPTY_COLOR;
