@@ -1,9 +1,5 @@
 import { TrackerConfig, BooleanConfig, ColormapConfig, HeatmapConfig } from './types';
-import {
-  resolveColor,
-  resolveHeatmapColors,
-  resolveColormapColors,
-} from './presets';
+import { resolveColor, resolveHeatmapColors } from './presets';
 
 export interface DayData {
   day: number;
@@ -20,7 +16,7 @@ function dayCell(
   tooltip: string,
   textStyle: string,
 ): string {
-  const base = `background-color:${bgColor};display:flex;align-items:center;justify-content:center;padding:4px 2px;border-radius:2px;font-size:9px;min-width:22px;box-sizing:border-box;${textStyle}`;
+  const base = `background-color:${bgColor};display:flex;align-items:center;justify-content:center;padding:4px 0;border-radius:2px;font-size:9px;flex:1;min-width:0;box-sizing:border-box;${textStyle}`;
 
   if (filePath) {
     return `<a href="${filePath}" class="internal-link" title="${tooltip}" style="${base};text-decoration:none;">${day}</a>`;
@@ -29,7 +25,7 @@ function dayCell(
 }
 
 function wrapGrid(cells: string): string {
-  return `<div style="display:flex;gap:2px;overflow-x:auto;margin-bottom:8px;">${cells}</div>`;
+  return `<div style="display:flex;gap:2px;margin-bottom:8px;">${cells}</div>`;
 }
 
 export function renderBoolean(config: BooleanConfig, data: Map<number, DayData>, daysInMonth: number): string {
@@ -48,7 +44,7 @@ export function renderBoolean(config: BooleanConfig, data: Map<number, DayData>,
 }
 
 export function renderColormap(config: ColormapConfig, data: Map<number, DayData>, daysInMonth: number): string {
-  const colorMap = resolveColormapColors(config.colors, config.preset);
+  const colorMap = config.colors ?? {};
   let cells = '';
 
   for (let day = 1; day <= daysInMonth; day++) {
@@ -65,7 +61,8 @@ export function renderColormap(config: ColormapConfig, data: Map<number, DayData
 
 export function renderHeatmap(config: HeatmapConfig, data: Map<number, DayData>, daysInMonth: number): string {
   const colors = resolveHeatmapColors(config.colors, config.colorScheme);
-  const bins = config.bins ?? [1, 3, 5, 7];
+  if (!config.bins || config.bins.length === 0) throw new Error('heatmap requires "bins" (e.g. bins: [3, 5, 7, 10])');
+  const bins = config.bins;
   const unit = config.unit ?? '';
 
   function getIntensity(val: number): number {

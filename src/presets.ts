@@ -27,16 +27,6 @@ export const HEATMAP_SCHEMES: Record<string, string[]> = {
   pink:   ['#ebedf0', '#fce4ec', '#f48fb1', '#f06292', '#ec407a', '#d81b60'],
 };
 
-/** Colormap presets: named value → color */
-export const COLORMAP_PRESETS: Record<string, Record<string, string>> = {
-  condition: {
-    good:  '#2196f3',
-    soso:  '#8bc34a',
-    tired: '#ff9800',
-    bad:   '#f44336',
-  },
-};
-
 /** Resolve a color string: if it's a known preset name, return the hex; otherwise return as-is. */
 export function resolveColor(color: string): string {
   return COLOR_PRESETS[color.toLowerCase()] ?? color;
@@ -52,15 +42,3 @@ export function resolveHeatmapColors(colors?: string[], colorScheme?: string): s
   return HEATMAP_SCHEMES['indigo'];
 }
 
-/** Resolve colormap colors from preset or explicit colors map. */
-export function resolveColormapColors(
-  colors?: Record<string, string>,
-  preset?: string,
-): Record<string, string> {
-  if (colors && Object.keys(colors).length > 0) return colors;
-  if (preset) {
-    const p = COLORMAP_PRESETS[preset.toLowerCase()];
-    if (p) return p;
-  }
-  return {};
-}

@@ -65,15 +65,6 @@ const HEATMAP_SCHEMES = {
     indigo: ['#ebedf0', '#e8eaf6', '#c5cae9', '#9fa8da', '#7986cb', '#5c6bc0'],
     pink: ['#ebedf0', '#fce4ec', '#f48fb1', '#f06292', '#ec407a', '#d81b60'],
 };
-/** Colormap presets: named value → color */
-const COLORMAP_PRESETS = {
-    condition: {
-        good: '#2196f3',
-        soso: '#8bc34a',
-        tired: '#ff9800',
-        bad: '#f44336',
-    },
-};
 /** Resolve a color string: if it's a known preset name, return the hex; otherwise return as-is. */
 function resolveColor(color) {
     var _a;
@@ -90,28 +81,17 @@ function resolveHeatmapColors(colors, colorScheme) {
     }
     return HEATMAP_SCHEMES['indigo'];
 }
-/** Resolve colormap colors from preset or explicit colors map. */
-function resolveColormapColors(colors, preset) {
-    if (colors && Object.keys(colors).length > 0)
-        return colors;
-    if (preset) {
-        const p = COLORMAP_PRESETS[preset.toLowerCase()];
-        if (p)
-            return p;
-    }
-    return {};
-}
 
 const EMPTY_COLOR = '#ebedf0';
 function dayCell(day, bgColor, filePath, tooltip, textStyle) {
-    const base = `background-color:${bgColor};display:flex;align-items:center;justify-content:center;padding:4px 2px;border-radius:2px;font-size:9px;min-width:22px;box-sizing:border-box;${textStyle}`;
+    const base = `background-color:${bgColor};display:flex;align-items:center;justify-content:center;padding:4px 0;border-radius:2px;font-size:9px;flex:1;min-width:0;box-sizing:border-box;${textStyle}`;
     if (filePath) {
         return `<a href="${filePath}" class="internal-link" title="${tooltip}" style="${base};text-decoration:none;">${day}</a>`;
     }
     return `<div title="${tooltip}" style="${base}">${day}</div>`;
 }
 function wrapGrid(cells) {
-    return `<div style="display:flex;gap:2px;overflow-x:auto;margin-bottom:8px;">${cells}</div>`;
+    return `<div style="display:flex;gap:2px;margin-bottom:8px;">${cells}</div>`;
 }
 function renderBoolean(config, data, daysInMonth) {
     const activeColor = resolveColor(config.color);
@@ -126,7 +106,8 @@ function renderBoolean(config, data, daysInMonth) {
     return wrapGrid(cells);
 }
 function renderColormap(config, data, daysInMonth) {
-    const colorMap = resolveColormapColors(config.colors, config.preset);
+    var _a;
+    const colorMap = (_a = config.colors) !== null && _a !== void 0 ? _a : {};
     let cells = '';
     for (let day = 1; day <= daysInMonth; day++) {
         const entry = data.get(day);
@@ -139,10 +120,12 @@ function renderColormap(config, data, daysInMonth) {
     return wrapGrid(cells);
 }
 function renderHeatmap(config, data, daysInMonth) {
-    var _a, _b, _c, _d, _e;
+    var _a, _b, _c, _d;
     const colors = resolveHeatmapColors(config.colors, config.colorScheme);
-    const bins = (_a = config.bins) !== null && _a !== void 0 ? _a : [1, 3, 5, 7];
-    const unit = (_b = config.unit) !== null && _b !== void 0 ? _b : '';
+    if (!config.bins || config.bins.length === 0)
+        throw new Error('heatmap requires "bins" (e.g. bins: [3, 5, 7, 10])');
+    const bins = config.bins;
+    const unit = (_a = config.unit) !== null && _a !== void 0 ? _a : '';
     function getIntensity(val) {
         if (!val || val <= 0)
             return 0;
@@ -155,7 +138,7 @@ function renderHeatmap(config, data, daysInMonth) {
     const maxIntensity = bins.length + 1;
     const safeColors = colors.length >= maxIntensity + 1 ? colors : [
         ...colors,
-        ...Array(maxIntensity + 1 - colors.length).fill((_c = colors[colors.length - 1]) !== null && _c !== void 0 ? _c : EMPTY_COLOR),
+        ...Array(maxIntensity + 1 - colors.length).fill((_b = colors[colors.length - 1]) !== null && _b !== void 0 ? _b : EMPTY_COLOR),
     ];
     let total = 0;
     let cells = '';
@@ -164,7 +147,7 @@ function renderHeatmap(config, data, daysInMonth) {
         const val = typeof (entry === null || entry === void 0 ? void 0 : entry.value) === 'number' ? entry.value : 0;
         total += val;
         const intensity = getIntensity(val);
-        const bgColor = (_d = safeColors[intensity]) !== null && _d !== void 0 ? _d : EMPTY_COLOR;
+        const bgColor = (_c = safeColors[intensity]) !== null && _c !== void 0 ? _c : EMPTY_COLOR;
         const hasData = intensity > 0;
         const textStyle = hasData ? 'font-weight:600;color:white;' : 'color:#999;';
         const tooltip = val > 0 ? `${val}${unit}` : '';
@@ -172,7 +155,7 @@ function renderHeatmap(config, data, daysInMonth) {
     }
     let html = '';
     if (config.showTotal) {
-        const label = (_e = config.totalLabel) !== null && _e !== void 0 ? _e : (unit ? `합계` : '합계');
+        const label = (_d = config.totalLabel) !== null && _d !== void 0 ? _d : (unit ? `합계` : '합계');
         html += `<div style="margin-bottom:6px;font-size:12px;color:var(--text-muted);">${label}: <span style="font-weight:600;color:var(--text-normal);">${total.toFixed(1)}${unit}</span></div>`;
     }
     html += wrapGrid(cells);

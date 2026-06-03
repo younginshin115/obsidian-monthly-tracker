@@ -1,7 +1,7 @@
 export interface BooleanConfig {
   type: 'boolean';
   title?: string;
-  property: string;
+  property?: string;
   source?: string;
   /** hex color string or preset name (e.g. "blue") */
   color: string;
@@ -12,10 +12,7 @@ export interface ColormapConfig {
   title?: string;
   property: string;
   source?: string;
-  /** map of value → hex color, or omit and use preset */
-  colors?: Record<string, string>;
-  /** built-in colormap preset name (e.g. "condition") */
-  preset?: string;
+  colors: Record<string, string>;
 }
 
 export interface HeatmapConfig {
