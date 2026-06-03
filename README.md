@@ -1,24 +1,23 @@
 # Monthly Tracker Plugin for Obsidian
 
-일간 노트의 frontmatter 데이터를 읽어 월간 트래커를 시각화하는 Obsidian 플러그인입니다.
-습관, 컨디션, 운동, 수면 등 매일 기록하는 데이터를 색상으로 표현해, 한 달간의 패턴과 흐름을 한눈에 파악할 수 있습니다.
+Visualize your daily note data as monthly tracker strips — right inside your notes. Turn habits, moods, exercise, sleep, and anything else you log into color-coded patterns you can read at a glance.
 
 ---
 
-## 동작 방식
+## How It Works
 
-1. **월간 노트** frontmatter에 `year`, `month`를 선언합니다.
-2. 플러그인이 일간 노트 폴더에서 `YYYY-MM-DD`로 시작하는 파일을 스캔합니다. (폴더는 설정값 또는 Daily Notes / Periodic Notes 플러그인에서 자동 감지)
-3. 각 일간 노트의 frontmatter 프로퍼티를 읽어 한 달 전체를 셀로 표시합니다.
-4. 셀을 클릭하면 해당 날짜의 노트로 이동합니다.
+1. Your **monthly note** declares `year` and `month` in its frontmatter.
+2. The plugin scans your daily notes folder for files starting with `YYYY-MM-DD`. (Folder is read from settings, or auto-detected from the Daily Notes / Periodic Notes plugin.)
+3. It reads a frontmatter property from each daily note and renders a full month of colored cells.
+4. Click any cell to open that day's note.
 
 ---
 
-## 사전 준비
+## Prerequisites
 
-### 월간 노트
+### Monthly Note
 
-플러그인은 현재 노트의 frontmatter에서 `year`와 `month`를 읽어 어느 달의 일간 노트를 스캔할지 결정합니다. 월간 노트에 반드시 두 필드가 있어야 합니다.
+The plugin reads `year` and `month` from the current note's frontmatter to determine which month to render. Both fields are required.
 
 ```yaml
 ---
@@ -27,83 +26,79 @@ month: 6
 ---
 ```
 
-### 일간 노트
+### Daily Notes
 
-파일명이 설정한 날짜 형식으로 시작해야 합니다. 기본값은 `YYYY-MM-DD`이며, Settings → Monthly Tracker → Date format에서 변경할 수 있습니다.
+File names must start with your configured date format (default: `YYYY-MM-DD`). Text after the date is ignored — `2026-06-03.md` and `2026-06-03 Tuesday.md` both work.
 
-날짜 이후에 다른 문자가 붙어도 인식됩니다. `2026-06-03.md`, `2026-06-03 Tuesday.md` 모두 인식됩니다.
-
-트래킹할 값은 일간 노트 frontmatter에 기록합니다:
+Values to track go in each daily note's frontmatter:
 
 ```yaml
 ---
-영어: true
-알고리즘문제: true
-기상컨디션: good
-달린거리: 5.2
-수면시간: 7
+workout: true
+mood: good
+distance: 5.2
+sleep: 7
 ---
 ```
 
 ---
 
-## 사용법
+## Usage
 
-월간 노트에 `monthly-tracker` 코드블록을 추가합니다:
+Add a `monthly-tracker` code block anywhere in your monthly note:
 
 ````markdown
 ```monthly-tracker
 type: boolean
-property: 영어
+property: workout
 color: blue
 ```
 ````
 
 ---
 
-## 트래커 종류
+## Tracker Types
 
-### 1. Boolean — 완료 여부
+### 1. Boolean — Completion
 
-프로퍼티가 `true`인 날을 색으로 표시합니다. 습관 트래킹에 적합합니다.
+Highlights days where a property is truthy. Perfect for habit tracking.
 
-![Boolean 트래커](docs/screenshot-boolean.png)
+![Boolean tracker](docs/screenshot-boolean.png)
 
-| 옵션 | 필수 | 설명 |
-|------|------|------|
+| Option | Required | Description |
+|--------|----------|-------------|
 | `type` | ✅ | `boolean` |
-| `property` | | 일간 노트의 frontmatter 키 (없으면 파일 존재 여부로 표시) |
-| `color` | ✅ | 프리셋 이름 또는 색상 코드 |
-| `source` | | 폴더 직접 지정 (없으면 기본 설정 사용) |
+| `property` | | Frontmatter key in daily notes (omit to use file existence) |
+| `color` | ✅ | Preset name or hex color code |
+| `source` | | Folder override (falls back to plugin setting) |
 
-#### 습관 트래킹 — 프리셋 색상
+#### Habit tracking — preset color
 
 ````markdown
 ```monthly-tracker
 type: boolean
-property: 영어공부
+property: workout
 color: blue
 ```
 ````
 
-#### 습관 트래킹 — 색상 코드 직접 지정
+#### Habit tracking — hex color
 
 ````markdown
 ```monthly-tracker
 type: boolean
-property: 알고리즘문제
+property: meditation
 color: "#66bb6a"
 ```
 ````
 
-#### 파일 존재 여부 — `property` 생략
+#### File existence — omit `property`
 
-`source`로 지정한 폴더에 파일이 존재하면 해당 날짜에 색이 표시됩니다. 모닝 저널, 식단 일기처럼 frontmatter 없이 파일 생성 자체가 기록인 경우에 유용합니다.
+If `property` is omitted, any day that has a file in the `source` folder will be highlighted. Useful for journals or logs where creating the file is the record itself (e.g. morning journals, meal diaries).
 
 ````markdown
 ```monthly-tracker
 type: boolean
-
 source: Calendar/Morning Journals
 color: yellow
 ```
@@ -111,73 +106,73 @@ color: yellow
 
 ---
 
-### 2. Colormap — 카테고리 기록
+### 2. Colormap — Categories
 
-값에 따라 다른 색상으로 표시합니다. 컨디션, 기분, 운동 종류처럼 값마다 다른 색을 지정해 분류하고 싶을 때 적합합니다.
+Maps string values to colors. Use it when you want to classify data by label — mood, condition, workout type, focus level, etc.
 
-![Colormap 트래커](docs/screenshot-colormap.png)
+![Colormap tracker](docs/screenshot-colormap.png)
 
-| 옵션 | 필수 | 설명 |
-|------|------|------|
+| Option | Required | Description |
+|--------|----------|-------------|
 | `type` | ✅ | `colormap` |
-| `property` | ✅ | 일간 노트의 frontmatter 키 |
-| `colors` | ✅ | 값 → 색상 직접 지정 |
-| `source` | | 폴더 직접 지정 (없으면 기본 설정 사용) |
+| `property` | ✅ | Frontmatter key in daily notes |
+| `colors` | ✅ | Value → color map |
+| `source` | | Folder override (falls back to plugin setting) |
 
-#### 운동 종류 — colors 직접 정의
+#### Workout type
 
 ````markdown
 ```monthly-tracker
 type: colormap
-property: 운동종류
+property: workout-type
 colors:
-  달리기: "#e53935"
-  웨이트: "#7986cb"
-  요가: "#66bb6a"
-  수영: "#29b6f6"
+  run: "#e53935"
+  lift: "#7986cb"
+  yoga: "#66bb6a"
+  swim: "#29b6f6"
 ```
 ````
 
-#### 집중도 — 4단계 라벨
+#### Focus level — 4 labels
 
 ````markdown
 ```monthly-tracker
 type: colormap
-property: 집중도
+property: focus
 colors:
-  최상: "#1565c0"
-  보통: "#64b5f6"
-  저조: "#ffb74d"
-  없음: "#e57373"
+  great: "#1565c0"
+  normal: "#64b5f6"
+  low: "#ffb74d"
+  none: "#e57373"
 ```
 ````
 
 ---
 
-### 3. Heatmap — 활동량
+### 3. Heatmap — Activity Volume
 
-수치가 클수록 진한 색으로 표시합니다. 수면 시간, 운동 거리, 독서 페이지 등에 적합합니다.
+The higher the value, the darker the color. Great for sleep hours, running distance, pages read, and any other numeric data.
 
-![Heatmap 트래커](docs/screenshot-heatmap.png)
+![Heatmap tracker](docs/screenshot-heatmap.png)
 
-| 옵션 | 필수 | 설명 |
-|------|------|------|
+| Option | Required | Description |
+|--------|----------|-------------|
 | `type` | ✅ | `heatmap` |
-| `property` | ✅ | 일간 노트의 frontmatter 키 (숫자) |
-| `bins` | ✅ | 단계 구분 기준값 |
-| `colorScheme` | | 기본 제공 색상 테마 이름 |
-| `colors` | | 단계별 색상 직접 지정 (구간 수 + 1개) |
-| `unit` | | 단위 문자열 (툴팁 및 합계에 표시, 예: `km`, `h`, `분`) |
-| `showTotal` | | 트래커 위에 월 합계 표시 여부 |
-| `totalLabel` | | 합계 레이블 (기본값: `합계`) |
-| `source` | | 폴더 직접 지정 (없으면 기본 설정 사용) |
+| `property` | ✅ | Frontmatter key in daily notes (number) |
+| `bins` | ✅ | Threshold values that define intensity levels |
+| `colorScheme` | | Built-in color theme name |
+| `colors` | | Custom color array (length = number of bins + 1) |
+| `unit` | | Unit string shown in tooltip and total (e.g. `km`, `h`) |
+| `showTotal` | | Show monthly total above the tracker |
+| `totalLabel` | | Label for the total (default: `합계`) |
+| `source` | | Folder override (falls back to plugin setting) |
 
-#### 달리기 거리 — colorScheme 프리셋
+#### Running distance — colorScheme
 
 ````markdown
 ```monthly-tracker
 type: heatmap
-property: 달린거리
+property: distance
 colorScheme: indigo
 bins: [3, 5, 7, 10]
 unit: km
@@ -185,22 +180,22 @@ showTotal: true
 ```
 ````
 
-`bins: [3, 5, 7, 10]`처럼 경계값을 4개 지정하면 아래와 같이 5단계 구간이 만들어집니다:
+Setting `bins: [3, 5, 7, 10]` with 4 boundary values creates 5 intensity levels:
 
-| 구간 | 단계 |
-|------|------|
-| 0 ~ 3km | 1단계 (연함) |
-| 3 ~ 5km | 2단계 |
-| 5 ~ 7km | 3단계 |
-| 7 ~ 10km | 4단계 |
-| 10km 이상 | 5단계 (진함) |
+| Range | Level |
+|-------|-------|
+| 0 – 3 km | 1 (lightest) |
+| 3 – 5 km | 2 |
+| 5 – 7 km | 3 |
+| 7 – 10 km | 4 |
+| 10 km+ | 5 (darkest) |
 
-#### 수면 시간 — colors 직접 지정
+#### Sleep — custom colors
 
 ````markdown
 ```monthly-tracker
 type: heatmap
-property: 수면시간
+property: sleep
 unit: h
 bins: [5, 6, 7, 8]
 colors:
@@ -210,16 +205,15 @@ colors:
   - "#e57373"
   - "#c62828"
 showTotal: true
-totalLabel: 이번 달 총 수면
 ```
 ````
 
-#### 독서 페이지 — 합계 없이
+#### Pages read — no total
 
 ````markdown
 ```monthly-tracker
 type: heatmap
-property: 독서페이지
+property: pages
 colorScheme: green
 bins: [10, 30, 60, 100]
 unit: p
@@ -228,12 +222,12 @@ unit: p
 
 ---
 
-## 기본 제공 색상
+## Built-in Colors
 
 ### Boolean `color` / Heatmap `colorScheme`
 
-| 이름 | 색상 |
-|------|------|
+| Name | Color |
+|------|-------|
 | `blue` | #64b5f6 |
 | `green` | #66bb6a |
 | `red` | #e57373 |
@@ -244,56 +238,59 @@ unit: p
 | `indigo` | #7986cb |
 | `pink` | #f06292 |
 
-색상 코드를 직접 지정할 수도 있습니다: `color: "#ff5722"`
+You can also use any hex color directly: `color: "#ff5722"`
 
-Boolean은 지정한 색상 하나로 표시되고, Heatmap은 지정한 테마의 색상이 낮은 값은 연하게, 높은 값은 진하게 표시됩니다. Heatmap의 기본값은 `indigo`입니다.
+For **Boolean**, the color is applied as a single solid fill. For **Heatmap**, the chosen theme is rendered as a gradient from light (low/no data) to dark (high). Default theme is `indigo`.
 
 ---
 
-## 설정
+## Settings
 
-![설정 화면](docs/screenshot-settings.png)
+![Settings tab](docs/screenshot-settings.png)
 
 Settings → Monthly Tracker:
 
-| 항목 | 기본값 | 설명 |
-|------|--------|------|
-| **Daily notes folder** | (자동 감지) | 일간 노트가 있는 폴더 경로. 입력하면 해당 경로를 사용하고, 비워두면 Daily Notes 또는 Periodic Notes 플러그인 설정에서 자동으로 가져옵니다. |
-| **Date format** | `YYYY-MM-DD` | 파일명의 날짜 형식 |
+| Setting | Default | Description |
+|---------|---------|-------------|
+| **Daily notes folder** | (auto-detected) | Folder to scan for daily notes. If set, that path is used. If left empty, the folder is auto-detected from the Daily Notes or Periodic Notes plugin settings. |
+| **Date format** | `YYYY-MM-DD` | Date format used at the start of daily note file names. |
 
-`YYYY`(연), `MM`(월), `DD`(일) 세 토큰과 구분자를 조합해 설정합니다.
+Use `YYYY` (year), `MM` (month), and `DD` (day) tokens with any separator:
 
-| 설정값 | 인식하는 파일명 예시 |
-|--------|----------------------|
+| Format | Example file names |
+|--------|--------------------|
 | `YYYY-MM-DD` | `2026-06-03.md`, `2026-06-03 Tuesday.md` |
 | `YYYY/MM/DD` | `2026/06/03.md` |
 | `YYYY.MM.DD` | `2026.06.03.md` |
 
-다른 형식이 필요하다면 PR을 보내주세요.
+Need a different format? Feel free to open a PR.
 
-기본 설정과 다른 폴더를 스캔해야 하는 트래커에는 `source` 옵션으로 폴더를 직접 지정할 수 있습니다. 모닝 저널처럼 별도 폴더에 파일을 관리하는 경우에 유용합니다:
+For trackers that need to scan a different folder than the default, use the `source` option:
 
 ```monthly-tracker
 type: boolean
-
 source: Calendar/Morning Journals
 color: yellow
 ```
 
 ---
 
-## 트러블슈팅
+## Troubleshooting
 
-**`Missing required field: type`** — 코드블록에 `type: boolean` / `colormap` / `heatmap` 중 하나를 추가하세요.
+**`Missing required field: type`** — Add `type: boolean`, `type: colormap`, or `type: heatmap` to the code block.
 
-**`heatmap requires "bins"`** — heatmap 트래커에는 `bins`가 필수입니다. 예: `bins: [3, 5, 7, 10]`을 추가하세요.
+**`heatmap requires "bins"`** — `bins` is required for heatmap trackers. Add e.g. `bins: [3, 5, 7, 10]`.
 
-**`Current note must have 'year' and 'month' in frontmatter`** — 월간 노트 frontmatter에 `year`와 `month`를 추가하세요.
+**`Current note must have 'year' and 'month' in frontmatter`** — Add `year` and `month` to the monthly note's frontmatter.
 
-**셀에 색이 표시되지 않음** — `property` 이름이 일간 노트 frontmatter 키와 정확히 일치하는지, 파일이 설정된 폴더 안에 설정한 날짜 형식으로 시작하는지 확인하세요.
+**Cells not colored** — Check that the `property` name exactly matches the frontmatter key in your daily notes, and that your daily note files are in the configured folder with names starting in the correct date format.
 
 ---
 
-## 기여
+## Contributing
 
-새로운 colormap 프리셋, heatmap 색상 스킴, 기능 추가 등 개선 아이디어가 있다면 PR을 보내주세요.
+Have ideas for new color themes, features, or improvements? PRs are welcome.
+
+---
+
+[한국어 README](README.ko.md)
