@@ -1,3 +1,4 @@
+import { setTooltip } from 'obsidian';
 import { TrackerConfig, BooleanConfig, ColormapConfig, HeatmapConfig } from './types';
 import { resolveColor, resolveHeatmapColors } from './presets';
 import { t } from './i18n';
@@ -34,7 +35,7 @@ function dayCell(
     anchor.dataset.href = filePath;
   }
 
-  el.title = tooltip;
+  if (tooltip) setTooltip(el, tooltip);
   el.textContent = String(day);
   return el;
 }
