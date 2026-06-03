@@ -17,10 +17,23 @@ function buildDatePattern(dateFormat: string, year: number, month: number): RegE
   return new RegExp(`^${escaped}`);
 }
 
+/** Minimal shapes for the untyped internal/community plugin APIs we read from. */
+interface DailyNotesInternalPlugin {
+  instance?: { options?: { folder?: string } };
+}
+interface PeriodicNotesPlugin {
+  settings?: { daily?: { folder?: string } };
+}
+interface AppWithPlugins extends App {
+  internalPlugins?: { plugins?: Record<string, DailyNotesInternalPlugin | undefined> };
+  plugins?: { plugins?: Record<string, PeriodicNotesPlugin | undefined> };
+}
+
 function detectDailyNotesFolder(app: App): string {
-  const internal = (app as any).internalPlugins?.plugins?.['daily-notes']?.instance?.options?.folder;
+  const a = app as AppWithPlugins;
+  const internal = a.internalPlugins?.plugins?.['daily-notes']?.instance?.options?.folder;
   if (internal) return internal;
-  const periodic = (app as any).plugins?.plugins?.['periodic-notes']?.settings?.daily?.folder;
+  const periodic = a.plugins?.plugins?.['periodic-notes']?.settings?.daily?.folder;
   if (periodic) return periodic;
   return '';
 }
@@ -89,8 +102,8 @@ export default class MonthlyTrackerPlugin extends Plugin {
       throw new Error(t().errCannotResolveFile);
     }
     const fm = this.app.metadataCache.getFileCache(currentFile)?.frontmatter;
-    const year = fm?.year;
-    const month = fm?.month;
+    const year: unknown = fm?.year;
+    const month: unknown = fm?.month;
     if (year == null || month == null) {
       throw new Error(t().errMissingYearMonth);
     }
@@ -117,14 +130,8 @@ export default class MonthlyTrackerPlugin extends Plugin {
         const day = parseInt(match[1], 10);
 
         const childFm = this.app.metadataCache.getFileCache(child)?.frontmatter;
-        let value: unknown = undefined;
-
-        if (config.property === null || config.property === undefined) {
-          // File-existence mode (e.g. Morning Journal folder)
-          value = true;
-        } else {
-          value = childFm?.[config.property];
-        }
+        // File-existence mode (property omitted) marks every matching note as true.
+        const value: unknown = config.property == null ? true : childFm?.[config.property];
 
         data.set(day, { day, value, filePath: child.path });
       }
@@ -138,7 +145,7 @@ export default class MonthlyTrackerPlugin extends Plugin {
       const path = link?.getAttribute('data-href');
       if (!path) return;
       evt.preventDefault();
-      this.app.workspace.openLinkText(path, ctx.sourcePath, evt.ctrlKey || evt.metaKey);
+      void this.app.workspace.openLinkText(path, ctx.sourcePath, evt.ctrlKey || evt.metaKey);
     });
 
     // Trigger Obsidian's page-preview on hover (data-href alone doesn't enable it).
@@ -160,7 +167,8 @@ export default class MonthlyTrackerPlugin extends Plugin {
   }
 
   async loadSettings() {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    const data = (await this.loadData()) as Partial<PluginSettings> | null;
+    this.settings = Object.assign({}, DEFAULT_SETTINGS, data);
   }
 
   async saveSettings() {
