@@ -10,7 +10,7 @@
 ## 동작 방식
 
 1. **월간 노트** frontmatter에 `year`, `month`를 선언합니다.
-2. 플러그인이 일간 노트 폴더에서 `YYYY-MM-DD`로 시작하는 파일을 스캔합니다.
+2. 플러그인이 일간 노트 폴더에서 `YYYY-MM-DD`로 시작하는 파일을 스캔합니다. (폴더는 설정값 또는 Daily Notes / Periodic Notes 플러그인에서 자동 감지)
 3. 각 일간 노트의 frontmatter 프로퍼티를 읽어 한 달 전체를 셀로 표시합니다.
 4. 셀을 클릭하면 해당 날짜의 노트로 이동합니다.
 
@@ -258,7 +258,7 @@ Settings → Monthly Tracker:
 
 | 항목 | 기본값 | 설명 |
 |------|--------|------|
-| **Daily notes folder** | `04 Calendar/Days` | 일간 노트가 있는 폴더 경로 |
+| **Daily notes folder** | (자동 감지) | 일간 노트가 있는 폴더 경로. 입력하면 해당 경로를 사용하고, 비워두면 Daily Notes 또는 Periodic Notes 플러그인 설정에서 자동으로 가져옵니다. |
 | **Date format** | `YYYY-MM-DD` | 파일명의 날짜 형식 |
 
 `YYYY`(연), `MM`(월), `DD`(일) 세 토큰과 구분자를 조합해 설정합니다.

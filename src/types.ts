@@ -43,6 +43,6 @@ export interface PluginSettings {
 }
 
 export const DEFAULT_SETTINGS: PluginSettings = {
-  dailyNotesFolder: '04 Calendar/Days',
+  dailyNotesFolder: '',
   dateFormat: 'YYYY-MM-DD',
 };

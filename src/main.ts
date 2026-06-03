@@ -16,8 +16,16 @@ function buildDatePattern(dateFormat: string, year: number, month: number): RegE
   return new RegExp(`^${escaped}`);
 }
 
+function detectDailyNotesFolder(app: any): string {
+  const internal = app.internalPlugins?.plugins?.['daily-notes']?.instance?.options?.folder;
+  if (internal) return internal;
+  const periodic = app.plugins?.plugins?.['periodic-notes']?.settings?.daily?.folder;
+  if (periodic) return periodic;
+  return '';
+}
+
 export default class MonthlyTrackerPlugin extends Plugin {
-  settings: PluginSettings;
+  settings!: PluginSettings;
 
   async onload() {
     await this.loadSettings();
@@ -64,7 +72,7 @@ export default class MonthlyTrackerPlugin extends Plugin {
     }
 
     const daysInMonth = new Date(year, month, 0).getDate();
-    const folder = config.source ?? this.settings.dailyNotesFolder;
+    const folder = config.source ?? (this.settings.dailyNotesFolder || detectDailyNotesFolder(this.app));
     const pattern = buildDatePattern(this.settings.dateFormat, year, Number(month));
 
     // Scan vault folder for matching daily notes
