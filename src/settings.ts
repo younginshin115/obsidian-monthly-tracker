@@ -15,10 +15,10 @@ export class MonthlyTrackerSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName('Daily notes folder')
-      .setDesc('Folder containing daily notes (e.g. 04 Calendar/Days)')
+      .setDesc('Folder containing daily notes (e.g. Calendar/Days)')
       .addText(text =>
         text
-          .setPlaceholder('04 Calendar/Days')
+          .setPlaceholder('Calendar/Days')
           .setValue(this.plugin.settings.dailyNotesFolder)
           .onChange(async (value) => {
             this.plugin.settings.dailyNotesFolder = value.trim();
