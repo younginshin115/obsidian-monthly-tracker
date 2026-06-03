@@ -74,11 +74,11 @@ color: blue
 | 옵션 | 필수 | 설명 |
 |------|------|------|
 | `type` | ✅ | `boolean` |
-| `property` | | 일간 노트의 frontmatter 키 (생략 시 파일 존재 여부를 사용) |
-| `color` | ✅ | 프리셋 이름 또는 hex 색상 |
-| `source` | | 폴더 직접 지정 (기본 설정 대신 사용) |
+| `property` | | 일간 노트의 frontmatter 키 (없으면 파일 존재 여부로 표시) |
+| `color` | ✅ | 프리셋 이름 또는 색상 코드 |
+| `source` | | 폴더 직접 지정 (없으면 기본 설정 사용) |
 
-#### [boolean] 습관 트래킹 — 프리셋 색상
+#### 습관 트래킹 — 프리셋 색상
 
 ````markdown
 ```monthly-tracker
@@ -88,7 +88,7 @@ color: blue
 ```
 ````
 
-#### [boolean] 습관 트래킹 — hex 직접 지정
+#### 습관 트래킹 — 색상 코드 직접 지정
 
 ````markdown
 ```monthly-tracker
@@ -98,7 +98,7 @@ color: "#66bb6a"
 ```
 ````
 
-#### [boolean] 파일 존재 여부 — `property` 생략
+#### 파일 존재 여부 — `property` 생략
 
 `source`로 지정한 폴더에 파일이 존재하면 해당 날짜에 색이 표시됩니다. 모닝 저널, 식단 일기처럼 frontmatter 없이 파일 생성 자체가 기록인 경우에 유용합니다.
 
@@ -106,7 +106,7 @@ color: "#66bb6a"
 ```monthly-tracker
 type: boolean
 
-source: 04 Calendar/Morning Journals
+source: Calendar/Morning Journals
 color: yellow
 ```
 ````
@@ -115,7 +115,7 @@ color: yellow
 
 ### 2. Colormap — 카테고리 기록
 
-문자열 값을 색상에 매핑합니다. 컨디션, 기분, 운동 종류처럼 값마다 다른 색을 지정해 분류하고 싶을 때 적합합니다.
+값에 따라 다른 색상으로 표시합니다. 컨디션, 기분, 운동 종류처럼 값마다 다른 색을 지정해 분류하고 싶을 때 적합합니다.
 
 ![Colormap 트래커](docs/screenshot-colormap.png)
 
@@ -124,9 +124,9 @@ color: yellow
 | `type` | ✅ | `colormap` |
 | `property` | ✅ | 일간 노트의 frontmatter 키 |
 | `colors` | ✅ | 값 → 색상 직접 지정 |
-| `source` | | 폴더 직접 지정 (기본 설정 대신 사용) |
+| `source` | | 폴더 직접 지정 (없으면 기본 설정 사용) |
 
-#### [colormap] 운동 종류 — colors 직접 정의
+#### 운동 종류 — colors 직접 정의
 
 ````markdown
 ```monthly-tracker
@@ -140,7 +140,7 @@ colors:
 ```
 ````
 
-#### [colormap] 집중도 — 4단계 라벨
+#### 집중도 — 4단계 라벨
 
 ````markdown
 ```monthly-tracker
@@ -172,9 +172,9 @@ colors:
 | `unit` | | 단위 문자열 (툴팁 및 합계에 표시, 예: `km`, `h`, `분`) |
 | `showTotal` | | 트래커 위에 월 합계 표시 여부 |
 | `totalLabel` | | 합계 레이블 (기본값: `합계`) |
-| `source` | | 폴더 직접 지정 (기본 설정 대신 사용) |
+| `source` | | 폴더 직접 지정 (없으면 기본 설정 사용) |
 
-#### [heatmap] 달리기 거리 — colorScheme 프리셋
+#### 달리기 거리 — colorScheme 프리셋
 
 ````markdown
 ```monthly-tracker
@@ -187,7 +187,7 @@ showTotal: true
 ```
 ````
 
-`bins: [3, 5, 7, 10]`은 5단계 구간을 만듭니다:
+`bins: [3, 5, 7, 10]`처럼 경계값을 4개 지정하면 아래와 같이 5단계 구간이 만들어집니다:
 
 | 구간 | 단계 |
 |------|------|
@@ -197,7 +197,7 @@ showTotal: true
 | 7 ~ 10km | 4단계 |
 | 10km 이상 | 5단계 (진함) |
 
-#### [heatmap] 수면 시간 — colors 직접 지정
+#### 수면 시간 — colors 직접 지정
 
 ````markdown
 ```monthly-tracker
@@ -216,7 +216,7 @@ totalLabel: 이번 달 총 수면
 ```
 ````
 
-#### [heatmap] 독서 페이지 — 합계 없이
+#### 독서 페이지 — 합계 없이
 
 ````markdown
 ```monthly-tracker
@@ -230,7 +230,7 @@ unit: p
 
 ---
 
-## 색상 프리셋
+## 기본 제공 색상
 
 ### Boolean `color` / Heatmap `colorScheme`
 
@@ -246,9 +246,9 @@ unit: p
 | `indigo` | #7986cb |
 | `pink` | #f06292 |
 
-hex 직접 사용도 가능합니다: `color: "#ff5722"`
+색상 코드를 직접 지정할 수도 있습니다: `color: "#ff5722"`
 
-Heatmap의 각 테마는 연한 색(데이터 없음/낮음)부터 진한 색(높음)까지 6단계로 구성됩니다. 기본값은 `indigo`.
+Boolean은 지정한 색상 하나로 표시되고, Heatmap은 지정한 테마의 색상이 낮은 값은 연하게, 높은 값은 진하게 표시됩니다. Heatmap의 기본값은 `indigo`입니다.
 
 ---
 
@@ -273,95 +273,26 @@ Settings → Monthly Tracker:
 
 ![설정 화면](docs/screenshot-settings.png)
 
-트래커별로 `source` 옵션을 써서 폴더를 직접 지정할 수 있습니다:
+기본 설정과 다른 폴더를 스캔해야 하는 트래커에는 `source` 옵션으로 폴더를 직접 지정할 수 있습니다. 모닝 저널처럼 별도 폴더에 파일을 관리하는 경우에 유용합니다:
 
 ```monthly-tracker
 type: boolean
 
-source: 04 Calendar/MorningJournals
+source: Calendar/Morning Journals
 color: yellow
 ```
-
----
-
-## 월간 노트 전체 예시
-
-```yaml
----
-year: 2026
-month: 6
----
-```
-
-````markdown
-### [boolean] English — 프리셋 이름
-
-```monthly-tracker
-type: boolean
-property: 영어
-color: blue
-```
-
-### [boolean] Algorithm — hex 직접
-
-```monthly-tracker
-type: boolean
-property: 알고리즘문제
-color: "#66bb6a"
-```
-
-### [colormap] 기상 컨디션 — condition 프리셋
-
-```monthly-tracker
-type: colormap
-property: 기상컨디션
-preset: condition
-```
-
-### [colormap] 취침 컨디션 — colors 직접
-
-```monthly-tracker
-type: colormap
-property: 취침컨디션
-colors:
-  good: "#2196f3"
-  soso: "#8bc34a"
-  tired: "#ff9800"
-  bad: "#f44336"
-```
-
-### [heatmap] Running Distance — colorScheme 프리셋
-
-```monthly-tracker
-type: heatmap
-property: 달린거리
-colorScheme: indigo
-bins: [3, 5, 7, 10]
-unit: km
-showTotal: true
-```
-
-### [boolean] Morning Journal — 별도 폴더
-
-```monthly-tracker
-type: boolean
-
-source: 04 Calendar/MorningJournals
-color: yellow
-```
-````
 
 ---
 
 ## 트러블슈팅
 
-**`Missing required field: type`** — 코드블록에 `type: boolean` / `colormap` / `heatmap` 중 하나가 있는지 확인하세요.
+**`Missing required field: type`** — 코드블록에 `type: boolean` / `colormap` / `heatmap` 중 하나를 추가하세요.
 
-**`heatmap requires "bins"`** — heatmap 트래커에는 `bins`가 필수입니다. 예: `bins: [3, 5, 7, 10]`
+**`heatmap requires "bins"`** — heatmap 트래커에는 `bins`가 필수입니다. 예: `bins: [3, 5, 7, 10]`을 추가하세요.
 
-**`Current note must have 'year' and 'month' in frontmatter`** — 월간 노트 frontmatter에 `year`, `month`를 추가하세요.
+**`Current note must have 'year' and 'month' in frontmatter`** — 월간 노트 frontmatter에 `year`와 `month`를 추가하세요.
 
-**셀에 색이 안 칠해짐** — `property` 이름이 일간 노트 frontmatter 키와 정확히 일치하는지, 파일이 설정된 폴더 안에 설정한 날짜 형식으로 시작하는 이름으로 있는지 확인하세요.
+**셀에 색이 표시되지 않음** — `property` 이름이 일간 노트 frontmatter 키와 정확히 일치하는지, 파일이 설정된 폴더 안에 설정한 날짜 형식으로 시작하는지 확인하세요.
 
 ---
 
