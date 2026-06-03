@@ -115,9 +115,12 @@ export default class MonthlyTrackerPlugin extends Plugin {
     }
 
     const daysInMonth = new Date(year, month, 0).getDate();
-    const folder = normalizePath(
-      config.source ?? (this.settings.dailyNotesFolder || detectDailyNotesFolder(this.app)),
-    );
+    // Resolve the daily notes folder, then normalize user-provided paths.
+    // An unresolved folder stays empty so the lookup fails and the tracker is
+    // empty, rather than normalizePath('') === '/' silently scanning the vault root.
+    const resolvedFolder =
+      config.source ?? (this.settings.dailyNotesFolder || detectDailyNotesFolder(this.app));
+    const folder = resolvedFolder ? normalizePath(resolvedFolder) : '';
     const pattern = buildDatePattern(this.settings.dateFormat, year, month);
 
     // Scan vault folder for matching daily notes
