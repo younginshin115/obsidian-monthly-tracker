@@ -1,0 +1,19 @@
+{
+  "name": "monthly-tracker",
+  "version": "1.0.0",
+  "description": "Obsidian Monthly Tracker Plugin",
+  "main": "main.js",
+  "scripts": {
+    "build": "rollup -c rollup.config.js",
+    "dev": "rollup -c rollup.config.js -w"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "obsidian": "latest",
+    "rollup": "^3.0.0",
+    "tslib": "^2.0.0",
+    "typescript": "^5.0.0"
+  }
+}

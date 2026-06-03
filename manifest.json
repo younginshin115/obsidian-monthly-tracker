@@ -1,0 +1,9 @@
+{
+  "id": "monthly-tracker",
+  "name": "Monthly Tracker",
+  "version": "1.0.0",
+  "minAppVersion": "0.15.0",
+  "description": "Renders configurable monthly heatmap trackers from daily note frontmatter.",
+  "author": "Youngin Shin",
+  "isDesktopOnly": false
+}
