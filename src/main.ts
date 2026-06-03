@@ -58,6 +58,9 @@ export default class MonthlyTrackerPlugin extends Plugin {
     if (!config.property && config.type !== 'boolean') {
       throw new Error('Missing required field: property');
     }
+    if (config.type === 'colormap' && !config.colors) {
+      throw new Error('Missing required field: colors (e.g. colors: {value: "#hex"})');
+    }
 
     // Read year/month from the current note's frontmatter
     const currentFile = this.app.vault.getAbstractFileByPath(ctx.sourcePath);
