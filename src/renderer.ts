@@ -9,64 +9,91 @@ export interface DayData {
 
 const EMPTY_COLOR = '#ebedf0';
 
+function applyBaseStyle(el: HTMLElement, bgColor: string, textStyle: Record<string, string>): void {
+  Object.assign(el.style, {
+    backgroundColor: bgColor,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '4px 0',
+    borderRadius: '2px',
+    fontSize: '9px',
+    flex: '1',
+    minWidth: '0',
+    boxSizing: 'border-box',
+    ...textStyle,
+  });
+}
+
 function dayCell(
   day: number,
   bgColor: string,
   filePath: string | undefined,
   tooltip: string,
-  textStyle: string,
-): string {
-  const base = `background-color:${bgColor};display:flex;align-items:center;justify-content:center;padding:4px 0;border-radius:2px;font-size:9px;flex:1;min-width:0;box-sizing:border-box;${textStyle}`;
+  textStyle: Record<string, string>,
+): HTMLElement {
+  const el: HTMLElement = filePath
+    ? document.createElement('a')
+    : document.createElement('div');
 
   if (filePath) {
-    return `<a href="${filePath}" class="internal-link" title="${tooltip}" style="${base};text-decoration:none;">${day}</a>`;
+    (el as HTMLAnchorElement).href = filePath;
+    el.classList.add('internal-link');
+    el.style.textDecoration = 'none';
   }
-  return `<div title="${tooltip}" style="${base}">${day}</div>`;
+
+  el.title = tooltip;
+  el.textContent = String(day);
+  applyBaseStyle(el, bgColor, textStyle);
+  return el;
 }
 
-function wrapGrid(cells: string): string {
-  return `<div style="display:flex;gap:2px;margin-bottom:8px;">${cells}</div>`;
+function wrapGrid(cells: HTMLElement[]): HTMLElement {
+  const row = document.createElement('div');
+  Object.assign(row.style, { display: 'flex', gap: '2px', marginBottom: '8px' });
+  for (const cell of cells) row.appendChild(cell);
+  return row;
 }
 
-export function renderBoolean(config: BooleanConfig, data: Map<number, DayData>, daysInMonth: number): string {
+const ACTIVE_STYLE: Record<string, string> = { fontWeight: '600', color: 'white' };
+const EMPTY_STYLE: Record<string, string> = { color: '#999' };
+
+export function renderBoolean(config: BooleanConfig, data: Map<number, DayData>, daysInMonth: number): HTMLElement {
   const activeColor = resolveColor(config.color);
-  let cells = '';
+  const cells: HTMLElement[] = [];
 
   for (let day = 1; day <= daysInMonth; day++) {
     const entry = data.get(day);
     const active = entry !== undefined && !!entry.value;
-    const bgColor = active ? activeColor : EMPTY_COLOR;
-    const textStyle = active ? 'font-weight:600;color:white;' : 'color:#999;';
-    cells += dayCell(day, bgColor, entry?.filePath, active ? 'Yes' : '', textStyle);
+    cells.push(dayCell(day, active ? activeColor : EMPTY_COLOR, entry?.filePath, active ? 'Yes' : '', active ? ACTIVE_STYLE : EMPTY_STYLE));
   }
 
   return wrapGrid(cells);
 }
 
-export function renderColormap(config: ColormapConfig, data: Map<number, DayData>, daysInMonth: number): string {
-  const colorMap = config.colors ?? {};
-  let cells = '';
+export function renderColormap(config: ColormapConfig, data: Map<number, DayData>, daysInMonth: number): HTMLElement {
+  const colorMap = config.colors;
+  const cells: HTMLElement[] = [];
 
   for (let day = 1; day <= daysInMonth; day++) {
     const entry = data.get(day);
     const val = entry?.value as string | undefined;
-    const bgColor = (val && colorMap[val]) ? colorMap[val] : EMPTY_COLOR;
-    const hasData = val && colorMap[val];
-    const textStyle = hasData ? 'font-weight:600;color:white;' : 'color:#999;';
-    cells += dayCell(day, bgColor, entry?.filePath, val ?? '', textStyle);
+    const mappedColor = val != null ? colorMap[val] : undefined;
+    const bgColor = mappedColor ?? EMPTY_COLOR;
+    cells.push(dayCell(day, bgColor, entry?.filePath, val ?? '', mappedColor ? ACTIVE_STYLE : EMPTY_STYLE));
   }
 
   return wrapGrid(cells);
 }
 
-export function renderHeatmap(config: HeatmapConfig, data: Map<number, DayData>, daysInMonth: number): string {
+export function renderHeatmap(config: HeatmapConfig, data: Map<number, DayData>, daysInMonth: number): HTMLElement {
   const colors = resolveHeatmapColors(config.colors, config.colorScheme);
   if (!config.bins || config.bins.length === 0) throw new Error('heatmap requires "bins" (e.g. bins: [3, 5, 7, 10])');
   const bins = config.bins;
   const unit = config.unit ?? '';
 
   function getIntensity(val: number): number {
-    if (!val || val <= 0) return 0;
+    if (val <= 0) return 0;
     for (let i = 0; i < bins.length; i++) {
       if (val < bins[i]) return i + 1;
     }
@@ -80,7 +107,7 @@ export function renderHeatmap(config: HeatmapConfig, data: Map<number, DayData>,
   ];
 
   let total = 0;
-  let cells = '';
+  const cells: HTMLElement[] = [];
 
   for (let day = 1; day <= daysInMonth; day++) {
     const entry = data.get(day);
@@ -88,19 +115,25 @@ export function renderHeatmap(config: HeatmapConfig, data: Map<number, DayData>,
     total += val;
     const intensity = getIntensity(val);
     const bgColor = safeColors[intensity] ?? EMPTY_COLOR;
-    const hasData = intensity > 0;
-    const textStyle = hasData ? 'font-weight:600;color:white;' : 'color:#999;';
-    const tooltip = val > 0 ? `${val}${unit}` : '';
-    cells += dayCell(day, bgColor, entry?.filePath, tooltip, textStyle);
+    cells.push(dayCell(day, bgColor, entry?.filePath, val > 0 ? `${val}${unit}` : '', intensity > 0 ? ACTIVE_STYLE : EMPTY_STYLE));
   }
 
-  let html = '';
+  const container = document.createElement('div');
+
   if (config.showTotal) {
-    const label = config.totalLabel ?? (unit ? `합계` : '합계');
-    html += `<div style="margin-bottom:6px;font-size:12px;color:var(--text-muted);">${label}: <span style="font-weight:600;color:var(--text-normal);">${total.toFixed(1)}${unit}</span></div>`;
+    const label = config.totalLabel ?? '합계';
+    const summary = document.createElement('div');
+    Object.assign(summary.style, { marginBottom: '6px', fontSize: '12px', color: 'var(--text-muted)' });
+    summary.textContent = `${label}: `;
+    const value = document.createElement('span');
+    Object.assign(value.style, { fontWeight: '600', color: 'var(--text-normal)' });
+    value.textContent = `${total.toFixed(1)}${unit}`;
+    summary.appendChild(value);
+    container.appendChild(summary);
   }
-  html += wrapGrid(cells);
-  return html;
+
+  container.appendChild(wrapGrid(cells));
+  return container;
 }
 
 export function renderTracker(
@@ -111,7 +144,7 @@ export function renderTracker(
   const container = document.createElement('div');
   container.style.fontFamily = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
-  let inner = '';
+  let inner: HTMLElement | null = null;
   if (config.type === 'boolean') {
     inner = renderBoolean(config, data, daysInMonth);
   } else if (config.type === 'colormap') {
@@ -120,6 +153,6 @@ export function renderTracker(
     inner = renderHeatmap(config, data, daysInMonth);
   }
 
-  container.innerHTML = inner;
+  if (inner) container.appendChild(inner);
   return container;
 }
