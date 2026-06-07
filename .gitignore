@@ -2,6 +2,9 @@
 node_modules/
 
 # build artifacts
+# main.js is the compiled bundle; it is built on demand for local testing and
+# generated fresh by the release workflow, so it is not tracked in source.
+main.js
 *.js.map
 *.map
 
