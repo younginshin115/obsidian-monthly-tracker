@@ -1,6 +1,6 @@
 {
   "name": "monthly-tracker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Obsidian Monthly Tracker Plugin",
   "main": "main.js",
   "type": "module",
