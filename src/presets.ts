@@ -12,19 +12,19 @@ export const COLOR_PRESETS: Record<string, string> = {
 };
 
 /**
- * Heatmap color-scheme presets.
- * Index 0 = no data, index 1..n = increasing intensity.
+ * Heatmap color-scheme presets, ordered from lowest to highest intensity.
+ * Each entry is one color per intensity level (index 0 = level 1).
  */
 export const HEATMAP_SCHEMES: Record<string, string[]> = {
-  blue: ['#ebedf0', '#bbdefb', '#90caf9', '#64b5f6', '#42a5f5', '#1e88e5'],
-  green: ['#ebedf0', '#c8e6c9', '#a5d6a7', '#81c784', '#66bb6a', '#43a047'],
-  red: ['#ebedf0', '#ffcdd2', '#ef9a9a', '#e57373', '#ef5350', '#e53935'],
-  purple: ['#ebedf0', '#e1bee7', '#ce93d8', '#ba68c8', '#ab47bc', '#8e24aa'],
-  orange: ['#ebedf0', '#ffe0b2', '#ffcc80', '#ffb74d', '#ffa726', '#fb8c00'],
-  yellow: ['#ebedf0', '#fff9c4', '#fff59d', '#fff176', '#ffee58', '#fdd835'],
-  teal: ['#ebedf0', '#b2dfdb', '#80cbc4', '#4db6ac', '#26a69a', '#00897b'],
-  indigo: ['#ebedf0', '#e8eaf6', '#c5cae9', '#9fa8da', '#7986cb', '#5c6bc0'],
-  pink: ['#ebedf0', '#fce4ec', '#f48fb1', '#f06292', '#ec407a', '#d81b60'],
+  blue: ['#bbdefb', '#90caf9', '#64b5f6', '#42a5f5', '#1e88e5'],
+  green: ['#c8e6c9', '#a5d6a7', '#81c784', '#66bb6a', '#43a047'],
+  red: ['#ffcdd2', '#ef9a9a', '#e57373', '#ef5350', '#e53935'],
+  purple: ['#e1bee7', '#ce93d8', '#ba68c8', '#ab47bc', '#8e24aa'],
+  orange: ['#ffe0b2', '#ffcc80', '#ffb74d', '#ffa726', '#fb8c00'],
+  yellow: ['#fff9c4', '#fff59d', '#fff176', '#ffee58', '#fdd835'],
+  teal: ['#b2dfdb', '#80cbc4', '#4db6ac', '#26a69a', '#00897b'],
+  indigo: ['#e8eaf6', '#c5cae9', '#9fa8da', '#7986cb', '#5c6bc0'],
+  pink: ['#fce4ec', '#f48fb1', '#f06292', '#ec407a', '#d81b60'],
 };
 
 /** Resolve a color string: if it's a known preset name, return the hex; otherwise return as-is. */

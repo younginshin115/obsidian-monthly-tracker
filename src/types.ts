@@ -26,12 +26,12 @@ export interface HeatmapConfig {
    * e.g. [3, 5, 7, 10] → 5 buckets: [0,3), [3,5), [5,7), [7,10), [10,∞)
    */
   bins?: number[];
-  /** array of hex colors, length = bins.length + 1, or omit and use colorScheme */
+  /** hex colors, one per intensity level (length = bins.length + 1); or omit and use colorScheme */
   colors?: string[];
   /** built-in heatmap color scheme name (e.g. "indigo") */
   colorScheme?: string;
   showTotal?: boolean;
-  /** label shown next to total, defaults to property name */
+  /** label shown next to total; defaults to a localized "Total" */
   totalLabel?: string;
 }
 

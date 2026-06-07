@@ -10,6 +10,24 @@ export interface DayData {
 }
 
 /**
+ * Pick a readable text color for a colored cell. The stylesheet defaults active
+ * cells to white text, which is low-contrast on light fills (e.g. yellow). For
+ * light backgrounds this returns a dark color to override it; otherwise it
+ * returns null to keep the stylesheet default. Only hex colors are parsed —
+ * anything else falls back to the default.
+ */
+function readableTextColor(bgColor: string): string | null {
+  const hex = bgColor.trim().replace(/^#/, '');
+  const full = hex.length === 3 ? hex.split('').map((c) => c + c).join('') : hex;
+  if (full.length !== 6 || /[^0-9a-fA-F]/.test(full)) return null;
+  const r = parseInt(full.slice(0, 2), 16);
+  const g = parseInt(full.slice(2, 4), 16);
+  const b = parseInt(full.slice(4, 6), 16);
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.7 ? '#1a1a1a' : null;
+}
+
+/**
  * Build a single day cell.
  * @param bgColor inline background color for active cells; null lets the theme
  *   (`.is-empty`) style empty cells so dark mode is respected.
@@ -26,7 +44,11 @@ function dayCell(
     : activeDocument.createElement('div');
 
   el.classList.add('monthly-tracker-cell', active ? 'is-active' : 'is-empty');
-  if (bgColor) el.style.backgroundColor = bgColor;
+  if (bgColor) {
+    el.style.backgroundColor = bgColor;
+    const textColor = readableTextColor(bgColor);
+    if (textColor) el.style.color = textColor;
+  }
 
   if (filePath) {
     const anchor = el as HTMLAnchorElement;
@@ -92,10 +114,12 @@ export function renderHeatmap(config: HeatmapConfig, data: Map<number, DayData>,
     return bins.length + 1;
   }
 
-  const maxIntensity = bins.length + 1;
+  // Active intensity runs 1..(bins.length + 1); each level maps to one color at
+  // index (intensity - 1), so we need exactly one color per level.
+  const levels = bins.length + 1;
   const fillColor = colors[colors.length - 1] ?? '';
-  const padding = new Array<string>(Math.max(0, maxIntensity + 1 - colors.length)).fill(fillColor);
-  const safeColors = colors.length >= maxIntensity + 1 ? colors : [...colors, ...padding];
+  const padding = new Array<string>(Math.max(0, levels - colors.length)).fill(fillColor);
+  const safeColors = colors.length >= levels ? colors : [...colors, ...padding];
 
   let total = 0;
   const cells: HTMLElement[] = [];
@@ -107,7 +131,7 @@ export function renderHeatmap(config: HeatmapConfig, data: Map<number, DayData>,
     total += val;
     const intensity = getIntensity(val);
     const active = intensity > 0;
-    const bgColor = active ? (safeColors[intensity] || null) : null;
+    const bgColor = active ? (safeColors[intensity - 1] || null) : null;
     cells.push(dayCell(day, bgColor, active, entry?.filePath, val > 0 ? `${val}${unit}` : ''));
   }
 

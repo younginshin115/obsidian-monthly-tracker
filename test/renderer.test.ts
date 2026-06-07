@@ -120,6 +120,19 @@ describe('renderBoolean', () => {
     const cell = cellsOf(renderBoolean(config, data, 30))[2];
     expect(cell.classList.contains('is-empty')).toBe(true);
   });
+
+  it('overrides text color to dark on a light background for contrast', () => {
+    const data = new Map<number, DayData>([[1, { day: 1, value: true }]]);
+    const cell = cellsOf(renderBoolean({ type: 'boolean', color: 'yellow' }, data, 1))[0];
+    // yellow is light → renderer sets an explicit dark text color (vs. the CSS white default).
+    expect(cell.style.color).not.toBe('');
+  });
+
+  it('leaves text color to the stylesheet on a dark background', () => {
+    const data = new Map<number, DayData>([[1, { day: 1, value: true }]]);
+    const cell = cellsOf(renderBoolean({ type: 'boolean', color: 'indigo' }, data, 1))[0];
+    expect(cell.style.color).toBe('');
+  });
 });
 
 describe('renderColormap', () => {
@@ -182,24 +195,24 @@ describe('renderHeatmap', () => {
   });
 
   it('selects the bin color matching each intensity level', () => {
-    // bins [5,10] → intensity 1 (<5), 2 (<10), 3 (>=10); colors index = intensity.
+    // bins [5,10] → intensity 1 (<5), 2 (<10), 3 (>=10); color index = intensity - 1.
     const cells = cellsOf(renderHeatmap(base, data, 3));
-    expect(cells[0].style.backgroundColor).toBe(asBg('#aaa')); // val 3  → intensity 1
-    expect(cells[1].style.backgroundColor).toBe(asBg('#777')); // val 8  → intensity 2
-    expect(cells[2].style.backgroundColor).toBe(asBg('#333')); // val 20 → intensity 3 (max)
+    expect(cells[0].style.backgroundColor).toBe(asBg('#eee')); // val 3  → intensity 1 → colors[0]
+    expect(cells[1].style.backgroundColor).toBe(asBg('#aaa')); // val 8  → intensity 2 → colors[1]
+    expect(cells[2].style.backgroundColor).toBe(asBg('#777')); // val 20 → intensity 3 → colors[2]
   });
 
   it('treats a value equal to a bin threshold as the higher bucket', () => {
     // getIntensity uses `val < bins[i]`, so val === 5 is NOT in the <5 bucket.
     const cell = cellsOf(renderHeatmap(base, new Map([[1, { day: 1, value: 5 }]]), 1))[0];
-    expect(cell.style.backgroundColor).toBe(asBg('#777')); // intensity 2, not 1
+    expect(cell.style.backgroundColor).toBe(asBg('#aaa')); // intensity 2 → colors[1]
   });
 
-  it('pads a short color array so the max bucket reuses the last color', () => {
-    // Needs maxIntensity+1 = 4 colors; only 2 given → padded with the last one.
-    const cfg: HeatmapConfig = { ...base, colors: ['#eee', '#abc'] };
+  it('pads a short color array so the top level reuses the last color', () => {
+    // bins [5,10] needs 3 colors (one per level); only 2 given → padded with the last.
+    const cfg: HeatmapConfig = { ...base, colors: ['#abc', '#9af'] };
     const cell = cellsOf(renderHeatmap(cfg, new Map([[1, { day: 1, value: 20 }]]), 1))[0];
-    expect(cell.style.backgroundColor).toBe(asBg('#abc'));
+    expect(cell.style.backgroundColor).toBe(asBg('#9af')); // intensity 3 → padded last color
   });
 
   it('renders a total summary when showTotal is set', () => {

@@ -1,4 +1,11 @@
-import { Plugin, MarkdownPostProcessorContext, TFile, TFolder, parseYaml } from 'obsidian';
+import {
+  Plugin,
+  MarkdownPostProcessorContext,
+  MarkdownRenderChild,
+  TFile,
+  TFolder,
+  parseYaml,
+} from 'obsidian';
 import { PluginSettings, DEFAULT_SETTINGS, TrackerConfig } from './types';
 import { MonthlyTrackerSettingTab } from './settings';
 import { renderTracker, DayData } from './renderer';
@@ -84,8 +91,13 @@ export default class MonthlyTrackerPlugin extends Plugin {
 
     const rendered = renderTracker(config, data, daysInMonth);
 
+    // Tie the listeners to this render's lifecycle (via ctx.addChild) so they are
+    // cleaned up when the block re-renders, rather than accumulating on the plugin
+    // until unload.
+    const child = new MarkdownRenderChild(rendered);
+
     // Delegate internal-link clicks to Obsidian so day cells open the note.
-    this.registerDomEvent(rendered, 'click', (evt) => {
+    child.registerDomEvent(rendered, 'click', (evt) => {
       const link = (evt.target as HTMLElement).closest('a.internal-link');
       const path = link?.getAttribute('data-href');
       if (!path) return;
@@ -94,7 +106,7 @@ export default class MonthlyTrackerPlugin extends Plugin {
     });
 
     // Trigger Obsidian's page-preview on hover (data-href alone doesn't enable it).
-    this.registerDomEvent(rendered, 'mouseover', (evt) => {
+    child.registerDomEvent(rendered, 'mouseover', (evt) => {
       const link = (evt.target as HTMLElement).closest('a.internal-link');
       const path = link?.getAttribute('data-href');
       if (!path) return;
@@ -108,6 +120,7 @@ export default class MonthlyTrackerPlugin extends Plugin {
       });
     });
 
+    ctx.addChild(child);
     el.appendChild(rendered);
   }
 
