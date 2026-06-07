@@ -299,3 +299,26 @@ color: yellow
 ## 기여
 
 새로운 colormap 프리셋, heatmap 색상 스킴, 기능 추가 등 개선 아이디어가 있다면 PR을 보내주세요.
+
+### 개발 환경 설정
+
+**Node.js 20 이상**이 필요합니다.
+
+```bash
+npm install      # 의존성 설치
+npm run dev      # main.js 빌드 + 변경 시 자동 리빌드
+npm run build    # 타입 체크 후 배포용 main.js 생성
+```
+
+`main.js`는 빌드 산출물이라 저장소에 **추적되지 않습니다** — 로컬에서 Obsidian에 플러그인을 올려 테스트하기 전에 `npm run build`(또는 `npm run dev`)를 먼저 실행하세요.
+
+### 테스트
+
+순수 로직(날짜 패턴, 폴더 해석, 설정 검증, 색상 프리셋)과 렌더러의 DOM 출력은 [Vitest](https://vitest.dev)로 검증합니다. 렌더러 테스트는 happy-dom 위에서 돌아가므로 Obsidian 런타임이 필요 없습니다.
+
+```bash
+npm test         # 전체 스위트 1회 실행
+npx vitest       # watch 모드: 변경 시 자동 재실행
+```
+
+동작을 변경할 때는 테스트를 추가하거나 갱신해 주세요. lint·build·test는 모든 PR에서 GitHub Actions로 자동 실행됩니다.
