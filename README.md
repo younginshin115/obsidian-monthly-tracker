@@ -199,10 +199,10 @@ property: sleep
 unit: h
 bins: [5, 6, 7, 8]
 colors:
-  - "#ebedf0"
   - "#ffcdd2"
   - "#ef9a9a"
   - "#e57373"
+  - "#ef5350"
   - "#c62828"
 showTotal: true
 ```
