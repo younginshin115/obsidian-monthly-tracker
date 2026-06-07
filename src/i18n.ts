@@ -18,8 +18,10 @@ export interface Messages {
   totalLabel: string;
   settingsFolderName: string;
   settingsFolderDesc: string;
+  settingsFolderPlaceholder: string;
   settingsDateFormatName: string;
   settingsDateFormatDesc: string;
+  settingsDateFormatPlaceholder: string;
 }
 
 const en: Messages = {
@@ -38,8 +40,10 @@ const en: Messages = {
   totalLabel: 'Total',
   settingsFolderName: 'Daily notes folder',
   settingsFolderDesc: 'Folder containing daily notes (e.g. Calendar/Days)',
+  settingsFolderPlaceholder: 'Calendar/Days',
   settingsDateFormatName: 'Date format',
   settingsDateFormatDesc: 'File name date format. Must match YYYY-MM-DD at the start of file names.',
+  settingsDateFormatPlaceholder: 'YYYY-MM-DD',
 };
 
 const ko: Messages = {
@@ -58,8 +62,10 @@ const ko: Messages = {
   totalLabel: '합계',
   settingsFolderName: '데일리 노트 폴더',
   settingsFolderDesc: '데일리 노트가 들어 있는 폴더 (예: Calendar/Days)',
+  settingsFolderPlaceholder: 'Calendar/Days',
   settingsDateFormatName: '날짜 형식',
   settingsDateFormatDesc: '파일 이름의 날짜 형식. 파일 이름 앞부분이 YYYY-MM-DD와 일치해야 합니다.',
+  settingsDateFormatPlaceholder: 'YYYY-MM-DD',
 };
 
 function currentLocale(): Locale {
