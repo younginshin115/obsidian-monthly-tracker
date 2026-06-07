@@ -164,7 +164,7 @@ The higher the value, the darker the color. Great for sleep hours, running dista
 | `colors` | | Custom color array (length = number of bins + 1) |
 | `unit` | | Unit string shown in tooltip and total (e.g. `km`, `h`) |
 | `showTotal` | | Show monthly total above the tracker |
-| `totalLabel` | | Label for the total (default: `합계`) |
+| `totalLabel` | | Label for the total (default: localized `Total`) |
 | `source` | | Folder override (falls back to plugin setting) |
 
 #### Running distance — colorScheme

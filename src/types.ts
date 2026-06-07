@@ -31,7 +31,7 @@ export interface HeatmapConfig {
   /** built-in heatmap color scheme name (e.g. "indigo") */
   colorScheme?: string;
   showTotal?: boolean;
-  /** label shown next to total, defaults to property name */
+  /** label shown next to total; defaults to a localized "Total" */
   totalLabel?: string;
 }
 
