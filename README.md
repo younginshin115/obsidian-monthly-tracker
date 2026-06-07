@@ -291,6 +291,29 @@ color: yellow
 
 Have ideas for new color themes, features, or improvements? PRs are welcome.
 
+### Development setup
+
+Requires **Node.js 20 or newer**.
+
+```bash
+npm install      # install dependencies
+npm run dev      # build main.js and rebuild on change
+npm run build    # type-check and produce a production main.js
+```
+
+`main.js` is a build artifact and is **not** tracked in the repo — run `npm run build` (or `npm run dev`) before loading the plugin in Obsidian for local testing.
+
+### Tests
+
+Pure logic (date patterns, folder resolution, config validation, color presets) and the renderer's DOM output are covered by [Vitest](https://vitest.dev). The renderer tests run under happy-dom, so no Obsidian runtime is needed.
+
+```bash
+npm test         # run the full suite once
+npx vitest       # watch mode: re-run on change
+```
+
+Please add or update tests when changing behavior. Lint, build, and tests run automatically on every pull request via GitHub Actions.
+
 ---
 
 [한국어 README](README.ko.md)
