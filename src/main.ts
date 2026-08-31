@@ -12,6 +12,7 @@ import { renderTracker, DayData } from './renderer';
 import { buildDatePattern } from './date-pattern';
 import { detectDailyNotesFolder, resolveDailyNotesFolder } from './folder';
 import { validateConfig } from './validate';
+import { hasBlockYearMonth, resolveYearMonth } from './month';
 import { t } from './i18n';
 
 export default class MonthlyTrackerPlugin extends Plugin {
@@ -44,23 +45,17 @@ export default class MonthlyTrackerPlugin extends Plugin {
     const config = parseYaml(source.trim()) as TrackerConfig;
     validateConfig(config);
 
-    // Read year/month from the current note's frontmatter
-    const currentFile = this.app.vault.getAbstractFileByPath(ctx.sourcePath);
-    if (!(currentFile instanceof TFile)) {
-      throw new Error(t().errCannotResolveFile);
+    // The block's own year/month wins; otherwise fall back to the current note's frontmatter,
+    // which is the only case that needs the file resolved.
+    let fm: Record<string, unknown> | undefined;
+    if (!hasBlockYearMonth(config)) {
+      const currentFile = this.app.vault.getAbstractFileByPath(ctx.sourcePath);
+      if (!(currentFile instanceof TFile)) {
+        throw new Error(t().errCannotResolveFile);
+      }
+      fm = this.app.metadataCache.getFileCache(currentFile)?.frontmatter;
     }
-    const fm = this.app.metadataCache.getFileCache(currentFile)?.frontmatter;
-    const year: unknown = fm?.year;
-    const month: unknown = fm?.month;
-    if (year == null || month == null) {
-      throw new Error(t().errMissingYearMonth);
-    }
-    if (typeof year !== 'number' || typeof month !== 'number') {
-      throw new Error(t().errYearMonthType);
-    }
-    if (month < 1 || month > 12) {
-      throw new Error(t().errInvalidMonth(month));
-    }
+    const { year, month } = resolveYearMonth(config, fm);
 
     const daysInMonth = new Date(year, month, 0).getDate();
     const folder = resolveDailyNotesFolder(

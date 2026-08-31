@@ -20,7 +20,7 @@
 
 ### 월간 노트
 
-플러그인은 현재 노트의 frontmatter에서 `year`와 `month`를 읽어 어느 달의 일간 노트를 스캔할지 결정합니다. 월간 노트에 반드시 두 필드가 있어야 합니다.
+플러그인은 기본적으로 현재 노트의 frontmatter에서 `year`와 `month`를 읽어 어느 달의 일간 노트를 스캔할지 결정합니다.
 
 ```yaml
 ---
@@ -28,6 +28,8 @@ year: 2026
 month: 6
 ---
 ```
+
+코드블록에서 `year`, `month` 옵션으로 직접 지정할 수도 있습니다([특정 월 고정하기](#특정-월-고정하기) 참고). 지정하면 노트의 frontmatter는 무시됩니다.
 
 ### 일간 노트
 
@@ -77,6 +79,8 @@ color: blue
 | `property` | | 일간 노트의 frontmatter 키 (없으면 파일 존재 여부로 표시) |
 | `color` | ✅ | 프리셋 이름 또는 색상 코드 |
 | `source` | | 폴더 직접 지정 (없으면 기본 설정 사용) |
+| `year` | | 표시할 연도 (`month`와 함께 지정, 없으면 노트 frontmatter 사용) |
+| `month` | | 표시할 월 1–12 (`year`와 함께 지정, 없으면 노트 frontmatter 사용) |
 
 #### 습관 트래킹 — 프리셋 색상
 
@@ -125,6 +129,8 @@ color: yellow
 | `property` | ✅ | 일간 노트의 frontmatter 키 |
 | `colors` | ✅ | 값 → 색상 직접 지정 |
 | `source` | | 폴더 직접 지정 (없으면 기본 설정 사용) |
+| `year` | | 표시할 연도 (`month`와 함께 지정, 없으면 노트 frontmatter 사용) |
+| `month` | | 표시할 월 1–12 (`year`와 함께 지정, 없으면 노트 frontmatter 사용) |
 
 #### 운동 종류 — colors 직접 정의
 
@@ -173,6 +179,8 @@ colors:
 | `showTotal` | | 트래커 위에 월 합계 표시 여부 |
 | `totalLabel` | | 합계 레이블 (기본값: `합계`) |
 | `source` | | 폴더 직접 지정 (없으면 기본 설정 사용) |
+| `year` | | 표시할 연도 (`month`와 함께 지정, 없으면 노트 frontmatter 사용) |
+| `month` | | 표시할 월 1–12 (`year`와 함께 지정, 없으면 노트 frontmatter 사용) |
 
 #### 달리기 거리 — colorScheme 프리셋
 
@@ -227,6 +235,24 @@ bins: [10, 30, 60, 100]
 unit: p
 ```
 ````
+
+---
+
+## 특정 월 고정하기
+
+모든 트래커 종류에서 `year`, `month` 옵션을 쓸 수 있습니다. 지정하면 노트 frontmatter보다 우선하므로, 대시보드나 연간 회고처럼 frontmatter에 월이 없는 노트에서도 특정 월을 표시하거나, 한 노트에 여러 달을 나란히 놓을 수 있습니다:
+
+````markdown
+```monthly-tracker
+type: heatmap
+property: 걸음수
+bins: [3000, 6000, 9000]
+year: 2026
+month: 5
+```
+````
+
+`year`와 `month`는 항상 함께 지정해야 합니다. 하나만 쓰면 오류가 표시됩니다.
 
 ---
 
@@ -286,11 +312,13 @@ color: yellow
 
 ## 트러블슈팅
 
-**`Missing required field: type`** — 코드블록에 `type: boolean` / `colormap` / `heatmap` 중 하나를 추가하세요.
+**`필수 항목 누락: type (boolean | colormap | heatmap)`** — 코드블록에 `type: boolean` / `colormap` / `heatmap` 중 하나를 추가하세요.
 
-**`heatmap requires "bins"`** — heatmap 트래커에는 `bins`가 필수입니다. 예: `bins: [3, 5, 7, 10]`을 추가하세요.
+**`heatmap에는 "bins"가 필요합니다`** — heatmap 트래커에는 `bins`가 필수입니다. 예: `bins: [3, 5, 7, 10]`을 추가하세요.
 
-**`Current note must have 'year' and 'month' in frontmatter`** — 월간 노트 frontmatter에 `year`와 `month`를 추가하세요.
+**`현재 노트의 프론트매터에 'year'와 'month'가 있어야 합니다`** — 월간 노트 frontmatter에 `year`와 `month`를 추가하거나, 코드블록에서 직접 지정하세요.
+
+**`코드블록에는 'year'와 'month'를 함께 지정하거나 둘 다 생략해야 합니다`** — 코드블록에 둘 중 하나만 있습니다. 나머지 하나를 추가하거나, 둘 다 지워서 노트 frontmatter를 쓰도록 하세요.
 
 **셀에 색이 표시되지 않음** — `property` 이름이 일간 노트 frontmatter 키와 정확히 일치하는지, 파일이 설정된 폴더 안에 설정한 날짜 형식으로 시작하는지 확인하세요.
 

@@ -3,6 +3,10 @@ export interface BooleanConfig {
   title?: string;
   property?: string;
   source?: string;
+  /** year to render; omit to read it from the note's frontmatter (set together with month) */
+  year?: number;
+  /** month (1–12) to render; omit to read it from the note's frontmatter (set together with year) */
+  month?: number;
   /** hex color string or preset name (e.g. "blue") */
   color: string;
 }
@@ -12,6 +16,10 @@ export interface ColormapConfig {
   title?: string;
   property: string;
   source?: string;
+  /** year to render; omit to read it from the note's frontmatter (set together with month) */
+  year?: number;
+  /** month (1–12) to render; omit to read it from the note's frontmatter (set together with year) */
+  month?: number;
   colors: Record<string, string>;
 }
 
@@ -20,6 +28,10 @@ export interface HeatmapConfig {
   title?: string;
   property: string;
   source?: string;
+  /** year to render; omit to read it from the note's frontmatter (set together with month) */
+  year?: number;
+  /** month (1–12) to render; omit to read it from the note's frontmatter (set together with year) */
+  month?: number;
   unit?: string;
   /**
    * Thresholds separating intensity levels.
