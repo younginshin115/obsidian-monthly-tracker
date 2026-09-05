@@ -6,7 +6,7 @@ Visualize your daily note data as monthly tracker strips — right inside your n
 
 ## How It Works
 
-1. Your **monthly note** declares `year` and `month` in its frontmatter.
+1. Your **monthly note** declares `year` and `month` in its frontmatter — or the code block names the month itself.
 2. The plugin scans your daily notes folder for files starting with `YYYY-MM-DD`. (Folder is read from settings, or auto-detected from the Daily Notes / Periodic Notes plugin.)
 3. It reads a frontmatter property from each daily note and renders a full month of colored cells.
 4. Click any cell to open that day's note.
@@ -17,7 +17,7 @@ Visualize your daily note data as monthly tracker strips — right inside your n
 
 ### Monthly Note
 
-The plugin reads `year` and `month` from the current note's frontmatter to determine which month to render. Both fields are required.
+By default the plugin reads `year` and `month` from the current note's frontmatter to determine which month to render.
 
 ```yaml
 ---
@@ -25,6 +25,8 @@ year: 2026
 month: 6
 ---
 ```
+
+A code block can also name its month directly with `year` and `month` options — see [Pinning a specific month](#pinning-a-specific-month). When it does, the note's frontmatter is ignored.
 
 ### Daily Notes
 
@@ -71,6 +73,8 @@ Highlights days where a property is truthy. Perfect for habit tracking.
 | `property` | | Frontmatter key in daily notes (omit to use file existence) |
 | `color` | ✅ | Preset name or hex color code |
 | `source` | | Folder override (falls back to plugin setting) |
+| `year` | | Year to render (requires `month`; falls back to note frontmatter) |
+| `month` | | Month 1–12 to render (requires `year`; falls back to note frontmatter) |
 
 #### Habit tracking — preset color
 
@@ -118,6 +122,8 @@ Maps string values to colors. Use it when you want to classify data by label —
 | `property` | ✅ | Frontmatter key in daily notes |
 | `colors` | ✅ | Value → color map |
 | `source` | | Folder override (falls back to plugin setting) |
+| `year` | | Year to render (requires `month`; falls back to note frontmatter) |
+| `month` | | Month 1–12 to render (requires `year`; falls back to note frontmatter) |
 
 #### Workout type
 
@@ -166,6 +172,8 @@ The higher the value, the darker the color. Great for sleep hours, running dista
 | `showTotal` | | Show monthly total above the tracker |
 | `totalLabel` | | Label for the total (default: localized `Total`) |
 | `source` | | Folder override (falls back to plugin setting) |
+| `year` | | Year to render (requires `month`; falls back to note frontmatter) |
+| `month` | | Month 1–12 to render (requires `year`; falls back to note frontmatter) |
 
 #### Running distance — colorScheme
 
@@ -219,6 +227,24 @@ bins: [10, 30, 60, 100]
 unit: p
 ```
 ````
+
+---
+
+## Pinning a specific month
+
+Any tracker type accepts `year` and `month` options. When present they override the note's frontmatter, so a block can render a fixed month from any note — a dashboard, a yearly review, or two months side by side in the same note:
+
+````markdown
+```monthly-tracker
+type: heatmap
+property: steps
+bins: [3000, 6000, 9000]
+year: 2026
+month: 5
+```
+````
+
+`year` and `month` must always be set together. A block with only one of them shows an error.
 
 ---
 
@@ -281,7 +307,9 @@ color: yellow
 
 **`heatmap requires "bins"`** — `bins` is required for heatmap trackers. Add e.g. `bins: [3, 5, 7, 10]`.
 
-**`Current note must have 'year' and 'month' in frontmatter`** — Add `year` and `month` to the monthly note's frontmatter.
+**`Current note must have 'year' and 'month' in frontmatter`** — Add `year` and `month` to the monthly note's frontmatter, or set them on the code block itself.
+
+**`Specify both 'year' and 'month' in the code block, or omit both`** — The block has only one of the two. Add the missing one, or remove both to use the note's frontmatter.
 
 **Cells not colored** — Check that the `property` name exactly matches the frontmatter key in your daily notes, and that your daily note files are in the configured folder with names starting in the correct date format.
 
