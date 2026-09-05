@@ -12,6 +12,15 @@ export function hasBlockYearMonth(config: TrackerConfig): boolean {
 }
 
 /**
+ * Whole numbers only: `5.5` and `NaN` are numbers that pass a 1–12 range check yet
+ * render a silently empty tracker (the date pattern becomes `2026-5.5-…`, and every
+ * comparison against `NaN` is false), so they are rejected as a type error instead.
+ */
+function isWholeNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isInteger(value);
+}
+
+/**
  * Resolve which month to render: the code block's own `year`/`month` when given,
  * otherwise the current note's frontmatter.
  *
@@ -32,7 +41,7 @@ export function resolveYearMonth(
     if (year == null || month == null) {
       throw new Error(m.errBlockYearMonthPair);
     }
-    if (typeof year !== 'number' || typeof month !== 'number') {
+    if (!isWholeNumber(year) || !isWholeNumber(month)) {
       throw new Error(m.errBlockYearMonthType);
     }
   } else {
@@ -41,7 +50,7 @@ export function resolveYearMonth(
     if (year == null || month == null) {
       throw new Error(m.errMissingYearMonth);
     }
-    if (typeof year !== 'number' || typeof month !== 'number') {
+    if (!isWholeNumber(year) || !isWholeNumber(month)) {
       throw new Error(m.errYearMonthType);
     }
   }

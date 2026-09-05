@@ -6,7 +6,7 @@ Visualize your daily note data as monthly tracker strips — right inside your n
 
 ## How It Works
 
-1. Your **monthly note** declares `year` and `month` in its frontmatter.
+1. Your **monthly note** declares `year` and `month` in its frontmatter — or the code block names the month itself.
 2. The plugin scans your daily notes folder for files starting with `YYYY-MM-DD`. (Folder is read from settings, or auto-detected from the Daily Notes / Periodic Notes plugin.)
 3. It reads a frontmatter property from each daily note and renders a full month of colored cells.
 4. Click any cell to open that day's note.
