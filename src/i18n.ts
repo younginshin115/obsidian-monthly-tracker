@@ -10,6 +10,8 @@ export interface Messages {
   errCannotResolveFile: string;
   errMissingYearMonth: string;
   errYearMonthType: string;
+  errBlockYearMonthPair: string;
+  errBlockYearMonthType: string;
   errInvalidMonth: (month: number) => string;
   errHeatmapBins: string;
   errBinsPositive: (value: number) => string;
@@ -31,7 +33,9 @@ const en: Messages = {
   errMissingColors: 'Missing required field: colors (e.g. colors: {value: "#hex"})',
   errCannotResolveFile: 'Cannot resolve current file',
   errMissingYearMonth: "Current note must have 'year' and 'month' in frontmatter",
-  errYearMonthType: "'year' and 'month' must be numbers in frontmatter",
+  errYearMonthType: "'year' and 'month' must be whole numbers in frontmatter",
+  errBlockYearMonthPair: "Specify both 'year' and 'month' in the code block, or omit both",
+  errBlockYearMonthType: "'year' and 'month' must be whole numbers in the code block",
   errInvalidMonth: (month) => `Invalid month: ${month} (must be 1–12)`,
   errHeatmapBins: 'heatmap requires "bins" (e.g. bins: [3, 5, 7, 10])',
   errBinsPositive: (value) => `bins values must be positive (got ${value})`,
@@ -53,7 +57,9 @@ const ko: Messages = {
   errMissingColors: '필수 항목 누락: colors (예: colors: {value: "#hex"})',
   errCannotResolveFile: '현재 파일을 찾을 수 없습니다',
   errMissingYearMonth: "현재 노트의 프론트매터에 'year'와 'month'가 있어야 합니다",
-  errYearMonthType: "프론트매터의 'year'와 'month'는 숫자여야 합니다",
+  errYearMonthType: "프론트매터의 'year'와 'month'는 정수여야 합니다",
+  errBlockYearMonthPair: "코드블록에는 'year'와 'month'를 함께 지정하거나 둘 다 생략해야 합니다",
+  errBlockYearMonthType: "코드블록의 'year'와 'month'는 정수여야 합니다",
   errInvalidMonth: (month) => `잘못된 month: ${month} (1–12 사이여야 합니다)`,
   errHeatmapBins: 'heatmap에는 "bins"가 필요합니다 (예: bins: [3, 5, 7, 10])',
   errBinsPositive: (value) => `bins 값은 양수여야 합니다 (입력값: ${value})`,
